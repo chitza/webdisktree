@@ -1,0 +1,10 @@
+.git
+.claude
+
+backend/**/bin
+backend/**/obj
+backend/src/WebDiskTree.Api/data
+
+frontend/node_modules
+frontend/dist
+frontend/.angular

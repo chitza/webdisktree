@@ -1,0 +1,17 @@
+namespace WebDiskTree.Infrastructure.Data.Entities;
+
+/// <summary>
+/// Maps the FileEntries table for EF-based querying (list view / type breakdown). Rows are bulk-inserted via raw
+/// ADO.NET in <see cref="FileEntryBulkWriter"/> for scan-time throughput, not via EF change tracking.
+/// </summary>
+public class FileEntryEntity
+{
+    public long Id { get; set; }
+    public required Guid ScanId { get; set; }
+    public required string ParentPath { get; set; }
+    public required string Name { get; set; }
+    public string? Extension { get; set; }
+    public long SizeBytes { get; set; }
+    public DateTimeOffset ModifiedUtc { get; set; }
+    public bool IsDirectory { get; set; }
+}

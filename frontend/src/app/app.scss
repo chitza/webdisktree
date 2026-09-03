@@ -1,0 +1,22 @@
+.toolbar {
+  .brand {
+    font-weight: 600;
+    margin-right: 24px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 4px;
+
+    .active {
+      font-weight: 600;
+      text-decoration: underline;
+    }
+  }
+}
+
+.content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 16px 24px;
+}

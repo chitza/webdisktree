@@ -1,0 +1,25 @@
+@if (scan().status === ScanStatus.Pending || scan().status === ScanStatus.Running) {
+  <div class="banner banner-running">
+    <mat-progress-bar mode="indeterminate" />
+    <div class="banner-text">
+      <span>Scanning…</span>
+      @if (progress(); as p) {
+        <span class="detail">
+          {{ p.filesScanned }} files, {{ p.dirsScanned }} dirs, {{ p.bytesScanned | formatBytes }} — {{ p.currentPath }}
+        </span>
+      }
+    </div>
+  </div>
+} @else if (scan().status === ScanStatus.Failed) {
+  <div class="banner banner-error">
+    <mat-icon>error</mat-icon>
+    <span>Scan failed: {{ scan().errorMessage }}</span>
+    <button mat-button (click)="rescan.emit()">Retry</button>
+  </div>
+} @else if (scan().isStale) {
+  <div class="banner banner-stale">
+    <mat-icon>warning</mat-icon>
+    <span>This view is stale (files were deleted since the scan ran).</span>
+    <button mat-button (click)="rescan.emit()">Rescan</button>
+  </div>
+}

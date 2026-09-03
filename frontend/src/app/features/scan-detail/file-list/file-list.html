@@ -1,0 +1,71 @@
+<div class="toolbar">
+  @if (canDelete() && selection.selected.length > 0) {
+    <button mat-stroked-button color="warn" (click)="deleteSelected()">
+      <mat-icon>delete</mat-icon>
+      Delete {{ selection.selected.length }} selected
+    </button>
+  }
+</div>
+
+<table mat-table [dataSource]="items()" matSort (matSortChange)="onSortChange($event)" class="file-table">
+  <ng-container matColumnDef="select">
+    <th mat-header-cell *matHeaderCellDef>
+      @if (canDelete()) {
+        <mat-checkbox
+          [checked]="selection.selected.length > 0 && selection.selected.length === items().length"
+          [indeterminate]="selection.selected.length > 0 && selection.selected.length < items().length"
+          (change)="toggleAll()"
+        />
+      }
+    </th>
+    <td mat-cell *matCellDef="let row">
+      @if (canDelete()) {
+        <mat-checkbox
+          (click)="$event.stopPropagation()"
+          [checked]="selection.isSelected(row)"
+          (change)="selection.toggle(row)"
+        />
+      }
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header="name">Name</th>
+    <td mat-cell *matCellDef="let row">
+      @if (row.isDirectory) {
+        <mat-icon inline>folder</mat-icon>
+      }
+      {{ row.name }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="extension">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header="extension">Type</th>
+    <td mat-cell *matCellDef="let row">{{ row.isDirectory ? 'folder' : row.extension || '—' }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="sizeBytes">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header="size">Size</th>
+    <td mat-cell *matCellDef="let row">{{ row.sizeBytes | formatBytes }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="modifiedUtc">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header="modified">Modified</th>
+    <td mat-cell *matCellDef="let row">{{ row.modifiedUtc | date: 'short' }}</td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr
+    mat-row
+    *matRowDef="let row; columns: displayedColumns"
+    [class.dir-row]="row.isDirectory"
+    (click)="openRow(row)"
+  ></tr>
+</table>
+
+<mat-paginator
+  [length]="totalCount()"
+  [pageSize]="25"
+  [pageSizeOptions]="[25, 50, 100]"
+  (page)="onPageChange($event)"
+/>

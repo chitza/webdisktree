@@ -1,0 +1,23 @@
+.new-schedule-card {
+  max-width: 640px;
+  margin-bottom: 24px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 200px;
+  }
+}
+
+.error {
+  color: var(--mat-sys-error, #b00020);
+}
+
+.schedules-table {
+  width: 100%;
+}

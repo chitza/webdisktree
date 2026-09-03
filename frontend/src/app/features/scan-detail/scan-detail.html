@@ -1,0 +1,50 @@
+@if (scan(); as s) {
+  <div class="header">
+    <div>
+      <h1>{{ s.rootPath }}</h1>
+      <span class="subtitle">
+        {{ s.totalBytes | formatBytes }} · {{ s.totalFiles }} files · {{ s.totalDirs }} folders
+        @if (s.errorCount > 0) {
+          · {{ s.errorCount }} unreadable paths
+        }
+      </span>
+    </div>
+    <a mat-button routerLink="/scans"><mat-icon>arrow_back</mat-icon> Back to history</a>
+  </div>
+
+  <app-scan-progress-banner [scan]="s" (refresh)="onRefresh()" (rescan)="onRescan()" />
+
+  @if (s.status === ScanStatus.Completed && breadcrumb().length > 0) {
+    <nav class="breadcrumb">
+      @for (crumb of breadcrumb(); track crumb.fullPath; let i = $index) {
+        <button mat-button (click)="onBreadcrumbClick(i)">{{ crumb.name }}</button>
+        @if (!$last) {
+          <mat-icon inline>chevron_right</mat-icon>
+        }
+      }
+    </nav>
+
+    @if (focus(); as node) {
+      <app-treemap [node]="node" (drill)="onDrill($event)" />
+
+      <mat-tab-group class="detail-tabs">
+        <mat-tab label="Files">
+          <app-file-list
+            [scanId]="s.id"
+            [path]="node.fullPath"
+            [canDelete]="canDelete()"
+            (open)="onOpenByName($event)"
+            (deleted)="onRefresh()"
+          />
+        </mat-tab>
+        <mat-tab label="File types">
+          <app-type-breakdown [scanId]="s.id" />
+        </mat-tab>
+      </mat-tab-group>
+    }
+  } @else if (s.status === ScanStatus.Pending || s.status === ScanStatus.Running) {
+    <p>Waiting for the scan to finish to show the treemap…</p>
+  }
+} @else {
+  <p>Loading…</p>
+}

@@ -1,0 +1,36 @@
+<mat-card class="scan-start-card">
+  <mat-card-header>
+    <mat-card-title>Start a new scan</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (roots().length === 0 && !error()) {
+      <p>No allowed roots are configured. Ask the operator to add one via the AllowedRoots configuration.</p>
+    }
+
+    @if (roots().length > 0) {
+      <mat-form-field appearance="outline" class="root-select">
+        <mat-label>Root to scan</mat-label>
+        <mat-select [(ngModel)]="selectedPath">
+          @for (root of roots(); track root.path) {
+            <mat-option [value]="root.path">{{ root.label }} ({{ root.path }})</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-flat-button color="primary" [disabled]="!selectedPath() || starting()" (click)="startScan()">
+      @if (starting()) {
+        <mat-spinner diameter="18" />
+      } @else {
+        Start scan
+      }
+    </button>
+  </mat-card-actions>
+</mat-card>

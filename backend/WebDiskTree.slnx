@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/WebDiskTree.Api/WebDiskTree.Api.csproj" />
+    <Project Path="src/WebDiskTree.Core/WebDiskTree.Core.csproj" />
+    <Project Path="src/WebDiskTree.Infrastructure/WebDiskTree.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/WebDiskTree.Tests/WebDiskTree.Tests.csproj" />
+  </Folder>
+</Solution>
