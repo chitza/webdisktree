@@ -1,0 +1,59 @@
+## ===================
+## .NET
+## ===================
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+*.user
+*.userosscache
+*.suo
+*.pdb
+*.ilk
+*.log
+.vs/
+launchSettings.json
+appsettings.Local.json
+appsettings.*.Local.json
+secrets.json
+*.mdf
+*.ldf
+*.ndf
+
+## ===================
+## Angular / Node
+## ===================
+node_modules/
+dist/
+tmp/
+out-tsc/
+.angular/
+npm-debug.log*
+yarn-error.log*
+yarn-debug.log*
+.eslintcache
+*.tsbuildinfo
+
+## ===================
+## IDE / Editors
+## ===================
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+.history/
+
+## ===================
+## OS
+## ===================
+.DS_Store
+Thumbs.db
+
+## ===================
+## Env / Secrets
+## ===================
+.env
+.env.*
+!.env.example
