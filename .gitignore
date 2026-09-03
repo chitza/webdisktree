@@ -1,59 +1,18 @@
-## ===================
-## .NET
-## ===================
-[Bb]in/
-[Oo]bj/
-[Oo]ut/
+# .NET
+backend/**/bin/
+backend/**/obj/
 *.user
-*.userosscache
-*.suo
-*.pdb
-*.ilk
-*.log
-.vs/
-launchSettings.json
-appsettings.Local.json
-appsettings.*.Local.json
-secrets.json
-*.mdf
-*.ldf
-*.ndf
 
-## ===================
-## Angular / Node
-## ===================
-node_modules/
-dist/
-tmp/
-out-tsc/
-.angular/
+# Runtime data (SQLite db, gzip tree blobs)
+backend/src/WebDiskTree.Api/data/
+
+# Angular / Node
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
 npm-debug.log*
-yarn-error.log*
-yarn-debug.log*
-.eslintcache
-*.tsbuildinfo
 
-## ===================
-## IDE / Editors
-## ===================
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
-.idea/
-*.swp
-*.swo
-*~
-.history/
-
-## ===================
-## OS
-## ===================
+# Editors / OS
+.vs/
+.vscode/
 .DS_Store
-Thumbs.db
-
-## ===================
-## Env / Secrets
-## ===================
-.env
-.env.*
-!.env.example
