@@ -4,6 +4,10 @@
   align-items: center;
 }
 
+.error {
+  color: var(--mat-sys-error, #b00020);
+}
+
 .file-table {
   width: 100%;
 }

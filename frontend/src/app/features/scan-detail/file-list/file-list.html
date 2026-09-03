@@ -7,7 +7,19 @@
   }
 </div>
 
-<table mat-table [dataSource]="items()" matSort (matSortChange)="onSortChange($event)" class="file-table">
+@if (error()) {
+  <p class="error">{{ error() }}</p>
+}
+
+<table
+  mat-table
+  [dataSource]="items()"
+  matSort
+  matSortActive="size"
+  matSortDirection="desc"
+  (matSortChange)="onSortChange($event)"
+  class="file-table"
+>
   <ng-container matColumnDef="select">
     <th mat-header-cell *matHeaderCellDef>
       @if (canDelete()) {

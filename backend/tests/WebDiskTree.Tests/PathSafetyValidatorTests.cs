@@ -85,4 +85,25 @@ public class PathSafetyValidatorTests : IDisposable
             Directory.Delete(otherRoot, recursive: true);
         }
     }
+
+    [Fact]
+    public void UsesMostSpecificMatchingRootWhenNestedRootsDisagreeOnAllowDelete()
+    {
+        var parent = Directory.GetParent(_root)!.FullName;
+        var options = Options.Create(new AllowedRootsOptions
+        {
+            Roots =
+            [
+                new AllowedRoot { Path = parent, Label = "broad, no delete", AllowDelete = false },
+                new AllowedRoot { Path = _root, Label = "specific, delete enabled", AllowDelete = true },
+            ],
+        });
+        var validator = new PathSafetyValidator(options);
+
+        var childPath = Path.Combine(_root, "sub", "child.txt");
+        var ok = validator.TryValidateForDelete(_root, childPath, out var canonical, out var error);
+
+        Assert.True(ok, error);
+        Assert.Equal(Path.GetFullPath(childPath), canonical);
+    }
 }

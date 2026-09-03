@@ -49,9 +49,9 @@ export class Treemap implements AfterViewInit, OnDestroy {
 
   private readonly layout = computed(() => {
     const plain = buildTreemapNode(this.node(), MAX_VISIBLE_DEPTH);
-    const root = hierarchy(plain, (d) => d.children).sum((d) =>
-      d.children && d.children.length > 0 ? 0 : d.size,
-    );
+    const root = hierarchy(plain, (d) => d.children)
+      .sum((d) => (d.children && d.children.length > 0 ? 0 : d.size))
+      .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
     return root;
   });
 
