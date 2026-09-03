@@ -1,0 +1,28 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+
+  h1 {
+    margin: 0;
+    font-size: 20px;
+    word-break: break-all;
+  }
+
+  .subtitle {
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 13px;
+  }
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.detail-tabs {
+  margin-top: 12px;
+}

@@ -1,0 +1,20 @@
+services:
+  webdisktree:
+    build: .
+    image: webdisktree:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - webdisktree-data:/data
+      - /:/hostfs:ro
+      # Uncomment and adjust to allow deleting from a specific path (needs rw + a matching AllowedRoots entry):
+      # - /Users/you/Downloads:/hostfs/Users/you/Downloads:rw
+    environment:
+      # AllowedRoots is empty by default (nothing scannable) until configured. Example for one read-only root:
+      - AllowedRoots__Roots__0__Path=/hostfs
+      - AllowedRoots__Roots__0__Label=Whole disk (read-only)
+      - AllowedRoots__Roots__0__AllowDelete=false
+    restart: unless-stopped
+
+volumes:
+  webdisktree-data:

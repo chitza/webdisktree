@@ -1,0 +1,17 @@
+.toolbar {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.file-table {
+  width: 100%;
+}
+
+.dir-row {
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+}

@@ -1,0 +1,12 @@
+<mat-toolbar color="primary" class="toolbar">
+  <span class="brand">WebDiskTree</span>
+  <nav class="nav-links">
+    <a mat-button routerLink="/scans" routerLinkActive="active">Scans</a>
+    <a mat-button routerLink="/scans/new" routerLinkActive="active">New Scan</a>
+    <a mat-button routerLink="/schedules" routerLinkActive="active">Schedules</a>
+  </nav>
+</mat-toolbar>
+
+<main class="content">
+  <router-outlet />
+</main>

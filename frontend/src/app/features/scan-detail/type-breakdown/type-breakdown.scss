@@ -1,0 +1,41 @@
+.breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.breakdown-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 90px 80px;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.ext {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bar-track {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 3px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  background: #3f51b5;
+  height: 100%;
+}
+
+.size {
+  text-align: right;
+}
+
+.count {
+  color: rgba(0, 0, 0, 0.6);
+  text-align: right;
+}
