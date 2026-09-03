@@ -1,0 +1,15 @@
+<div #containerRef class="treemap-container">
+  <canvas
+    #canvasRef
+    (mousemove)="onMouseMove($event)"
+    (mouseleave)="onMouseLeave()"
+    (click)="onClick($event)"
+  ></canvas>
+
+  @if (hover(); as h) {
+    <div class="tooltip" [style.left.px]="h.x + 12" [style.top.px]="h.y + 12">
+      <strong>{{ h.node.data.name }}</strong>
+      <span>{{ h.node.value | formatBytes }}</span>
+    </div>
+  }
+</div>

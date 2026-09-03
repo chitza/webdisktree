@@ -25,7 +25,28 @@
     </nav>
 
     @if (focus(); as node) {
-      <app-treemap [node]="node" (drill)="onDrill($event)" />
+      <mat-button-toggle-group
+        class="view-switcher"
+        [value]="viewMode()"
+        (change)="onViewModeChange($event.value)"
+        aria-label="Visualization"
+      >
+        <mat-button-toggle value="treemap">Treemap</mat-button-toggle>
+        <mat-button-toggle value="stretched">Stretched treemap</mat-button-toggle>
+        <mat-button-toggle value="sunburst">Sunburst</mat-button-toggle>
+      </mat-button-toggle-group>
+
+      @switch (viewMode()) {
+        @case ('treemap') {
+          <app-treemap [node]="node" (drill)="onDrill($event)" />
+        }
+        @case ('stretched') {
+          <app-stretched-treemap [node]="node" (drill)="onDrill($event)" />
+        }
+        @case ('sunburst') {
+          <app-sunburst [node]="node" (drill)="onDrill($event)" />
+        }
+      }
 
       <mat-tab-group class="detail-tabs">
         <mat-tab label="Files">

@@ -10,12 +10,12 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { hierarchy, HierarchyRectangularNode, treemap, treemapSquarify } from 'd3-hierarchy';
+import { hierarchy, HierarchyRectangularNode, treemap, treemapSliceDice } from 'd3-hierarchy';
 import { DirectoryNode } from '../../../core/models/directory-node.model';
 import { FormatBytesPipe } from '../../../shared/format-bytes.pipe';
-import { buildTreemapNode, TreemapNode } from './treemap-layout';
-import { prepareCanvas, drawHierarchyNode, findHierarchyNodeAtPoint } from './canvas-hierarchy-render';
-import { ExtensionColorScale } from './hierarchy-colors';
+import { buildTreemapNode, TreemapNode } from '../treemap/treemap-layout';
+import { prepareCanvas, drawHierarchyNode, findHierarchyNodeAtPoint } from '../treemap/canvas-hierarchy-render';
+import { ExtensionColorScale } from '../treemap/hierarchy-colors';
 
 const MAX_VISIBLE_DEPTH = 2;
 
@@ -26,12 +26,12 @@ interface HoverInfo {
 }
 
 @Component({
-  selector: 'app-treemap',
+  selector: 'app-stretched-treemap',
   imports: [FormatBytesPipe],
-  templateUrl: './treemap.html',
-  styleUrl: './treemap.scss',
+  templateUrl: './stretched-treemap.html',
+  styleUrl: './stretched-treemap.scss',
 })
-export class Treemap implements AfterViewInit, OnDestroy {
+export class StretchedTreemap implements AfterViewInit, OnDestroy {
   readonly node = input.required<DirectoryNode>();
   readonly drill = output<DirectoryNode>();
 
@@ -80,11 +80,9 @@ export class Treemap implements AfterViewInit, OnDestroy {
 
     const rootHierarchy = this.layout();
     const treemapLayout = treemap<TreemapNode>()
-      .tile(treemapSquarify)
+      .tile(treemapSliceDice)
       .size([width, height])
       .paddingOuter(2)
-      // depth 0 (the focus root) is never drawn — see the loop below — so it must not reserve a label
-      // header either, or that space becomes a dead, unclickable gap above the actually-visible content.
       .paddingTop((d) => (d.depth > 0 && d.children && d.data.name ? 16 : 2))
       .paddingInner(1)
       .round(true);
