@@ -34,12 +34,13 @@ export class FileList implements OnChanges {
   readonly canDelete = input(false);
 
   readonly open = output<string>();
-  readonly deleted = output<void>();
+  readonly deleted = output<FileEntry[]>();
 
   readonly displayedColumns = ['select', 'name', 'extension', 'sizeBytes', 'modifiedUtc'];
   readonly items = signal<FileEntry[]>([]);
   readonly totalCount = signal(0);
   readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
   readonly selection = new SelectionModel<FileEntry>(true, []);
 
   private sortField: 'name' | 'size' | 'extension' | 'modified' = 'size';
@@ -107,13 +108,31 @@ export class FileList implements OnChanges {
   }
 
   deleteSelected(): void {
-    const paths = this.selection.selected.map((f) => `${this.path()}/${f.name}`);
+    const selected = this.selection.selected;
+    const paths = selected.map((f) => `${this.path()}/${f.name}`);
     if (paths.length === 0) return;
 
-    this.fileService.deleteFiles(this.scanId(), paths).subscribe(() => {
-      this.selection.clear();
-      this.load();
-      this.deleted.emit();
+    this.error.set(null);
+    this.fileService.deleteFiles(this.scanId(), paths).subscribe({
+      next: (result) => {
+        const failedPaths = new Set(result.failed.map((f) => f.path));
+        const succeeded = selected.filter((_, i) => !failedPaths.has(paths[i]));
+
+        this.selection.clear();
+        this.load();
+
+        if (result.failed.length > 0) {
+          this.error.set(
+            result.failed.length === 1
+              ? result.failed[0].reason
+              : `${result.failed.length} items could not be deleted: ${result.failed[0].reason}`,
+          );
+        }
+        if (succeeded.length > 0) {
+          this.deleted.emit(succeeded);
+        }
+      },
+      error: () => this.error.set('Failed to delete selected items.'),
     });
   }
 }

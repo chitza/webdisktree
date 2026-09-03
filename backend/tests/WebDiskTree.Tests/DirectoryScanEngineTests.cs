@@ -44,6 +44,21 @@ public class DirectoryScanEngineTests : IDisposable
     }
 
     [Fact]
+    public async Task ScanAsync_FlatRowsCarryRolledUpDirectorySizes()
+    {
+        Directory.CreateDirectory(Path.Combine(_root, "sub"));
+        File.WriteAllBytes(Path.Combine(_root, "sub", "nested.bin"), new byte[250]);
+
+        var engine = new DirectoryScanEngine();
+        var job = new ScanJob { RootPath = _root };
+
+        var result = await engine.ScanAsync(job, new NoopProgressReporter(), CancellationToken.None);
+
+        var subRow = Assert.Single(result.FlatRows, r => r.Name == "sub" && r.IsDirectory);
+        Assert.Equal(250, subRow.SizeBytes);
+    }
+
+    [Fact]
     public async Task ScanAsync_CapsFileChildrenAndAggregatesTheRest()
     {
         for (var i = 0; i < DirectoryNode.MaxFileChildren + 10; i++)

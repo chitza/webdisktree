@@ -34,7 +34,7 @@
             [path]="node.fullPath"
             [canDelete]="canDelete()"
             (open)="onOpenByName($event)"
-            (deleted)="onRefresh()"
+            (deleted)="onFilesDeleted($event)"
           />
         </mat-tab>
         <mat-tab label="File types">

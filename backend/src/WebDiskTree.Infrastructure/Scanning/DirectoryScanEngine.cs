@@ -37,6 +37,7 @@ public class DirectoryScanEngine : IScanEngine
         };
 
         var flatRows = new List<FlatFileRow>();
+        var directoryRows = new List<(DirectoryNode Node, int RowIndex)>();
         var stack = new Stack<DirectoryNode>();
         stack.Push(root);
 
@@ -92,6 +93,10 @@ public class DirectoryScanEngine : IScanEngine
                         IsSymlink = isSymlink,
                     };
                     current.Directories.Add(childNode);
+                    directoryRows.Add((childNode, flatRows.Count));
+                    // SizeBytes is a placeholder: a directory's real (rolled-up) size isn't known until all
+                    // its descendants have been walked, so this row is patched in below once RollUpDirectorySizes
+                    // has computed it — otherwise every directory would sort as 0 bytes in the file list.
                     flatRows.Add(new FlatFileRow(current.FullPath, info.Name, null, 0, childNode.ModifiedUtc, IsDirectory: true));
 
                     if (!isSymlink)
@@ -130,6 +135,11 @@ public class DirectoryScanEngine : IScanEngine
         }
 
         RollUpDirectorySizes(root);
+
+        foreach (var (node, rowIndex) in directoryRows)
+        {
+            flatRows[rowIndex] = flatRows[rowIndex] with { SizeBytes = node.SizeBytes };
+        }
 
         job.TotalBytes = root.SizeBytes;
         job.TotalFiles = filesScanned;

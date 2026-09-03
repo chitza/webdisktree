@@ -58,11 +58,14 @@ public class PathSafetyValidator(IOptions<AllowedRootsOptions> allowedRoots) : I
             return false;
         }
 
-        var allowedRoot = allowedRoots.Value.Roots.FirstOrDefault(r =>
-        {
-            var normalizedAllowed = Path.TrimEndingDirectorySeparator(Path.GetFullPath(r.Path));
-            return string.Equals(normalizedAllowed, normalizedRoot, PathComparison) || IsStrictDescendant(normalizedAllowed, normalizedRoot);
-        });
+        var allowedRoot = allowedRoots.Value.Roots
+            .Where(r =>
+            {
+                var normalizedAllowed = Path.TrimEndingDirectorySeparator(Path.GetFullPath(r.Path));
+                return string.Equals(normalizedAllowed, normalizedRoot, PathComparison) || IsStrictDescendant(normalizedAllowed, normalizedRoot);
+            })
+            .OrderByDescending(r => Path.GetFullPath(r.Path).Length)
+            .FirstOrDefault();
 
         if (allowedRoot is null || !allowedRoot.AllowDelete)
         {
