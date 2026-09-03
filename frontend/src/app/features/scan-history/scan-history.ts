@@ -8,10 +8,20 @@ import { MatChipsModule } from '@angular/material/chips';
 import { ScanService } from '../../core/services/scan.service';
 import { ScanStatus, ScanSummary, ScanTrigger } from '../../core/models/scan.model';
 import { FormatBytesPipe } from '../../shared/format-bytes.pipe';
+import { FormatCountPipe } from '../../shared/format-count.pipe';
 
 @Component({
   selector: 'app-scan-history',
-  imports: [RouterLink, MatTableModule, MatButtonModule, MatIconModule, MatChipsModule, FormatBytesPipe, DatePipe],
+  imports: [
+    RouterLink,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatChipsModule,
+    FormatBytesPipe,
+    FormatCountPipe,
+    DatePipe,
+  ],
   templateUrl: './scan-history.html',
   styleUrl: './scan-history.scss',
 })
