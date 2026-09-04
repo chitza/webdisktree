@@ -1,5 +1,4 @@
 import { Component, OnChanges, SimpleChanges, inject, input, output, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -10,6 +9,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { FileService } from '../../../core/services/file.service';
 import { FileEntry } from '../../../core/models/directory-node.model';
 import { FormatBytesPipe } from '../../../shared/format-bytes.pipe';
+import { LocalDatePipe } from '../../../shared/local-date.pipe';
 
 @Component({
   selector: 'app-file-list',
@@ -21,7 +21,7 @@ import { FormatBytesPipe } from '../../../shared/format-bytes.pipe';
     MatButtonModule,
     MatIconModule,
     FormatBytesPipe,
-    DatePipe,
+    LocalDatePipe,
   ],
   templateUrl: './file-list.html',
   styleUrl: './file-list.scss',
@@ -32,9 +32,11 @@ export class FileList implements OnChanges {
   readonly scanId = input.required<string>();
   readonly path = input.required<string>();
   readonly canDelete = input(false);
+  readonly canGoUp = input(false);
 
   readonly open = output<string>();
   readonly deleted = output<FileEntry[]>();
+  readonly up = output<void>();
 
   readonly displayedColumns = ['select', 'name', 'sizeBytes', 'modifiedUtc'];
   readonly items = signal<FileEntry[]>([]);

@@ -1,6 +1,6 @@
-// Fills the Material tab body's fixed-height content area (not just display:block, which
-// only grows to fit content) so .table-scroll below can be given a flex-basis to scroll
-// internally, leaving the toolbar and paginator pinned in view above/below it.
+// Fills the split area's fixed height (not just display:block, which only grows to fit
+// content) so .table-scroll below can be given a flex-basis to scroll internally, leaving
+// the toolbar and paginator pinned in view above/below it.
 :host {
   display: flex;
   flex-direction: column;
@@ -12,6 +12,11 @@
   flex: 0 0 auto;
   display: flex;
   align-items: center;
+  padding: 0 8px;
+
+  .delete-button {
+    margin-left: auto;
+  }
 }
 
 .error {

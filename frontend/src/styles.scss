@@ -33,6 +33,16 @@ html {
   }
 }
 
+// Match the angular-split gutter to the Material theme instead of its default flat gray.
+as-split {
+  --as-gutter-background-color: var(--mat-sys-outline-variant);
+}
+
+as-split .as-split-gutter:hover,
+as-split .as-split-gutter.as-dragged {
+  --as-gutter-background-color: var(--mat-sys-primary);
+}
+
 body {
   // Set a default background, font and text colors for the application using
   // Angular Material's system-level CSS variables. Learn more about these

@@ -26,22 +26,23 @@
     </nav>
 
     @if (focus(); as node) {
-      <as-split direction="horizontal" unit="percent" class="detail-split" gutterAriaLabel="Resize panels">
+      <as-split
+        direction="horizontal"
+        unit="percent"
+        class="detail-split"
+        gutterAriaLabel="Resize panels"
+        [gutterSize]="4"
+      >
         <as-split-area size="35" class="detail-split-area">
-          <mat-tab-group class="detail-tabs">
-            <mat-tab label="Files">
-              <app-file-list
-                [scanId]="s.id"
-                [path]="node.fullPath"
-                [canDelete]="canDelete()"
-                (open)="onOpenByName($event)"
-                (deleted)="onFilesDeleted($event)"
-              />
-            </mat-tab>
-            <mat-tab label="File types">
-              <app-type-breakdown [scanId]="s.id" />
-            </mat-tab>
-          </mat-tab-group>
+          <app-file-list
+            [scanId]="s.id"
+            [path]="node.fullPath"
+            [canDelete]="canDelete()"
+            [canGoUp]="breadcrumb().length > 1"
+            (open)="onOpenByName($event)"
+            (deleted)="onFilesDeleted($event)"
+            (up)="onNavigateUp()"
+          />
         </as-split-area>
 
         <as-split-area size="65" class="detail-split-area">
@@ -55,6 +56,7 @@
               <mat-button-toggle value="treemap">Treemap</mat-button-toggle>
               <mat-button-toggle value="stretched">Stretched treemap</mat-button-toggle>
               <mat-button-toggle value="sunburst">Sunburst</mat-button-toggle>
+              <mat-button-toggle value="types">File types</mat-button-toggle>
             </mat-button-toggle-group>
 
             <div class="viz-body">
@@ -67,6 +69,9 @@
                 }
                 @case ('sunburst') {
                   <app-sunburst [node]="node" (drill)="onDrill($event)" />
+                }
+                @case ('types') {
+                  <app-type-breakdown [scanId]="s.id" />
                 }
               }
             </div>
