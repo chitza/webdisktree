@@ -1,26 +1,37 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
+import { SplitAreaComponent, SplitComponent } from 'angular-split';
 import { ScanService } from '../../core/services/scan.service';
 import { FileService } from '../../core/services/file.service';
 import { DirectoryNode, FileEntry } from '../../core/models/directory-node.model';
 import { ScanStatus, ScanSummary } from '../../core/models/scan.model';
 import { Treemap } from './treemap/treemap';
+import { StretchedTreemap } from './stretched-treemap/stretched-treemap';
+import { Sunburst } from './sunburst/sunburst';
 import { FileList } from './file-list/file-list';
 import { TypeBreakdown } from './type-breakdown/type-breakdown';
 import { ScanProgressBanner } from './scan-progress-banner/scan-progress-banner';
 import { FormatBytesPipe } from '../../shared/format-bytes.pipe';
+
+type ViewMode = 'treemap' | 'stretched' | 'sunburst';
 
 @Component({
   selector: 'app-scan-detail',
   imports: [
     RouterLink,
     MatButtonModule,
+    MatButtonToggleModule,
     MatIconModule,
     MatTabsModule,
+    SplitComponent,
+    SplitAreaComponent,
     Treemap,
+    StretchedTreemap,
+    Sunburst,
     FileList,
     TypeBreakdown,
     ScanProgressBanner,
@@ -40,6 +51,7 @@ export class ScanDetail {
   readonly breadcrumb = signal<DirectoryNode[]>([]);
   readonly loadingTree = signal(false);
   readonly canDelete = signal(false);
+  readonly viewMode = signal<ViewMode>('treemap');
 
   readonly focus = computed(() => {
     const crumbs = this.breadcrumb();
@@ -158,5 +170,9 @@ export class ScanDetail {
     const current = this.focus();
     const child = current?.directories.find((d) => d.name === name);
     if (child) this.onDrill(child);
+  }
+
+  onViewModeChange(mode: ViewMode): void {
+    this.viewMode.set(mode);
   }
 }

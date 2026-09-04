@@ -1,0 +1,28 @@
+<div #containerRef class="sunburst-container">
+  <svg [attr.viewBox]="'0 0 ' + size().width + ' ' + size().height" [attr.width]="size().width" [attr.height]="size().height">
+    <g [attr.transform]="'translate(' + size().width / 2 + ',' + size().height / 2 + ')'">
+      @for (d of visibleNodes(); track d.data.path) {
+        <path
+          [attr.d]="arcPath(d)"
+          [attr.fill]="colorFor(d)"
+          class="arc"
+          [class.hovered]="hover()?.node === d"
+          [class.clickable]="d.data.isDirectory && !!d.data.ref"
+          (mousemove)="onHover(d, $event)"
+          (mouseleave)="onHoverLeave()"
+          (click)="onSelect(d)"
+        />
+        @if (isLabelVisible(d)) {
+          <text [attr.transform]="labelTransform(d)" text-anchor="middle" dy="0.35em">{{ d.data.name }}</text>
+        }
+      }
+    </g>
+  </svg>
+
+  @if (hover(); as h) {
+    <div class="tooltip" [style.left.px]="h.x + 12" [style.top.px]="h.y + 12">
+      <strong>{{ h.node.data.name }}</strong>
+      <span>{{ h.node.value | formatBytes }}</span>
+    </div>
+  }
+</div>
