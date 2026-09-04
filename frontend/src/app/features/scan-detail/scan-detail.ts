@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
+import { SplitAreaComponent, SplitComponent } from 'angular-split';
 import { ScanService } from '../../core/services/scan.service';
 import { FileService } from '../../core/services/file.service';
 import { DirectoryNode, FileEntry } from '../../core/models/directory-node.model';
@@ -26,6 +27,8 @@ type ViewMode = 'treemap' | 'stretched' | 'sunburst';
     MatButtonToggleModule,
     MatIconModule,
     MatTabsModule,
+    SplitComponent,
+    SplitAreaComponent,
     Treemap,
     StretchedTreemap,
     Sunburst,

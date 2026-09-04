@@ -44,16 +44,11 @@
   <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef mat-sort-header="name">Name</th>
     <td mat-cell *matCellDef="let row">
-      @if (row.isDirectory) {
-        <mat-icon inline>folder</mat-icon>
-      }
-      {{ row.name }}
+      <span class="name-cell">
+        <mat-icon inline>{{ row.isDirectory ? 'folder' : 'description' }}</mat-icon>
+        <span class="name-text" [title]="row.name">{{ row.name }}</span>
+      </span>
     </td>
-  </ng-container>
-
-  <ng-container matColumnDef="extension">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header="extension">Type</th>
-    <td mat-cell *matCellDef="let row">{{ row.isDirectory ? 'folder' : row.extension || '—' }}</td>
   </ng-container>
 
   <ng-container matColumnDef="sizeBytes">

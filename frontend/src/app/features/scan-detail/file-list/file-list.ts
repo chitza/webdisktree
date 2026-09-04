@@ -36,14 +36,14 @@ export class FileList implements OnChanges {
   readonly open = output<string>();
   readonly deleted = output<FileEntry[]>();
 
-  readonly displayedColumns = ['select', 'name', 'extension', 'sizeBytes', 'modifiedUtc'];
+  readonly displayedColumns = ['select', 'name', 'sizeBytes', 'modifiedUtc'];
   readonly items = signal<FileEntry[]>([]);
   readonly totalCount = signal(0);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly selection = new SelectionModel<FileEntry>(true, []);
 
-  private sortField: 'name' | 'size' | 'extension' | 'modified' = 'size';
+  private sortField: 'name' | 'size' | 'modified' = 'size';
   private sortDir: 'asc' | 'desc' = 'desc';
   private page = 1;
   private readonly pageSize = 25;

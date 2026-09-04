@@ -19,4 +19,9 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 16px 24px;
+
+  // The scan detail view (treemap/sunburst) benefits from using the full viewport width.
+  &:has(app-scan-detail) {
+    max-width: none;
+  }
 }

@@ -1,3 +1,10 @@
+// Without this, the host defaults to display:inline, which breaks percentage-width
+// resolution on the table below — it silently ignores width:100% and grows to fit its
+// widest row instead of being capped at the panel width, defeating the ellipsis CSS.
+:host {
+  display: block;
+}
+
 .toolbar {
   min-height: 40px;
   display: flex;
@@ -10,6 +17,53 @@
 
 .file-table {
   width: 100%;
+  // The default auto layout treats `width` as a lower bound and grows the table to fit its
+  // widest row's content, overriding the ellipsis/shrink CSS below. Fixed layout makes the
+  // browser actually honor `width: 100%` as a hard cap.
+  table-layout: fixed;
+  font-size: 13px;
+
+  --mat-table-header-container-height: 40px;
+  --mat-table-row-item-container-height: 32px;
+
+  .mat-mdc-header-cell,
+  .mat-mdc-cell {
+    padding: 0 8px;
+  }
+
+  .mat-column-select {
+    width: 40px;
+    padding: 0 0 0 4px;
+  }
+
+  .mat-column-name {
+    // Deliberately not display:flex here: that would pull the <td> out of the table's native
+    // row-height sizing (it'd shrink to its own content height instead of matching sibling
+    // cells), which broke the row's bottom border. The flex layout lives on .name-cell instead.
+    overflow: hidden;
+
+    .name-cell {
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      min-width: 0;
+      height: 100%;
+    }
+
+    mat-icon {
+      flex: 0 0 auto;
+      margin-right: 4px;
+      color: rgba(0, 0, 0, 0.54);
+    }
+
+    .name-text {
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
 }
 
 .dir-row {
