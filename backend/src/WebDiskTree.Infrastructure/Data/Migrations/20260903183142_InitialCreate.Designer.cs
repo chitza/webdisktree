@@ -20,6 +20,27 @@ namespace WebDiskTree.Infrastructure.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.11");
 
+            modelBuilder.Entity("WebDiskTree.Infrastructure.Data.Entities.DirectoryPathEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ScanId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ScanId", "Path")
+                        .IsUnique();
+
+                    b.ToTable("DirectoryPaths");
+                });
+
             modelBuilder.Entity("WebDiskTree.Infrastructure.Data.Entities.FileEntryEntity", b =>
                 {
                     b.Property<long>("Id")
@@ -39,9 +60,8 @@ namespace WebDiskTree.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ParentPath")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<long>("ParentDirectoryId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid>("ScanId")
                         .HasColumnType("TEXT");
@@ -53,9 +73,7 @@ namespace WebDiskTree.Infrastructure.Data.Migrations
 
                     b.HasIndex("ScanId", "Extension");
 
-                    b.HasIndex("ScanId", "ParentPath");
-
-                    b.HasIndex("ScanId", "SizeBytes");
+                    b.HasIndex("ScanId", "ParentDirectoryId");
 
                     b.ToTable("FileEntries");
                 });

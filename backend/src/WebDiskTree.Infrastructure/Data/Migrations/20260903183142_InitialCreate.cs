@@ -12,13 +12,27 @@ namespace WebDiskTree.Infrastructure.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "DirectoryPaths",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ScanId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Path = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DirectoryPaths", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "FileEntries",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     ScanId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ParentPath = table.Column<string>(type: "TEXT", nullable: false),
+                    ParentDirectoryId = table.Column<long>(type: "INTEGER", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Extension = table.Column<string>(type: "TEXT", nullable: true),
                     SizeBytes = table.Column<long>(type: "INTEGER", nullable: false),
@@ -71,19 +85,20 @@ namespace WebDiskTree.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_DirectoryPaths_ScanId_Path",
+                table: "DirectoryPaths",
+                columns: new[] { "ScanId", "Path" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_FileEntries_ScanId_Extension",
                 table: "FileEntries",
                 columns: new[] { "ScanId", "Extension" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_FileEntries_ScanId_ParentPath",
+                name: "IX_FileEntries_ScanId_ParentDirectoryId",
                 table: "FileEntries",
-                columns: new[] { "ScanId", "ParentPath" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FileEntries_ScanId_SizeBytes",
-                table: "FileEntries",
-                columns: new[] { "ScanId", "SizeBytes" });
+                columns: new[] { "ScanId", "ParentDirectoryId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Scans_StartedAt",
@@ -94,6 +109,9 @@ namespace WebDiskTree.Infrastructure.Data.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "DirectoryPaths");
+
             migrationBuilder.DropTable(
                 name: "FileEntries");
 

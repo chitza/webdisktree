@@ -52,7 +52,17 @@ public class FilesController(
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 500);
 
-        var query = dbContext.FileEntries.Where(f => f.ScanId == id && f.ParentPath == path);
+        var directoryId = await dbContext.DirectoryPaths
+            .Where(d => d.ScanId == id && d.Path == path)
+            .Select(d => (long?)d.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (directoryId is null)
+        {
+            return Ok(new PagedResult<FileEntryDto>([], page, pageSize, 0));
+        }
+
+        var query = dbContext.FileEntries.Where(f => f.ScanId == id && f.ParentDirectoryId == directoryId);
 
         var descending = string.Equals(dir, "desc", StringComparison.OrdinalIgnoreCase);
         query = sort.ToLowerInvariant() switch

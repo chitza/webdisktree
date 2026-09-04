@@ -8,7 +8,11 @@ public class FileEntryEntity
 {
     public long Id { get; set; }
     public required Guid ScanId { get; set; }
-    public required string ParentPath { get; set; }
+
+    /// <summary>References <see cref="DirectoryPathEntity.Id"/> instead of repeating the parent path string on
+    /// every file row — a directory with N files previously stored (and indexed) that path text N times.</summary>
+    public required long ParentDirectoryId { get; set; }
+
     public required string Name { get; set; }
     public string? Extension { get; set; }
     public long SizeBytes { get; set; }
