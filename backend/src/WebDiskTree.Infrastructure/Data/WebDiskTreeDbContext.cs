@@ -8,6 +8,7 @@ public class WebDiskTreeDbContext(DbContextOptions<WebDiskTreeDbContext> options
     public DbSet<ScanEntity> Scans => Set<ScanEntity>();
     public DbSet<ScheduleEntity> Schedules => Set<ScheduleEntity>();
     public DbSet<FileEntryEntity> FileEntries => Set<FileEntryEntity>();
+    public DbSet<DirectoryPathEntity> DirectoryPaths => Set<DirectoryPathEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,6 +23,12 @@ public class WebDiskTreeDbContext(DbContextOptions<WebDiskTreeDbContext> options
             b.HasKey(s => s.Id);
         });
 
+        modelBuilder.Entity<DirectoryPathEntity>(b =>
+        {
+            b.HasKey(d => d.Id);
+            b.HasIndex(d => new { d.ScanId, d.Path }).IsUnique();
+        });
+
         modelBuilder.Entity<FileEntryEntity>(b =>
         {
             b.HasKey(f => f.Id);
@@ -31,9 +38,10 @@ public class WebDiskTreeDbContext(DbContextOptions<WebDiskTreeDbContext> options
             b.Property(f => f.ModifiedUtc).HasConversion(
                 v => v.ToUnixTimeMilliseconds(),
                 v => DateTimeOffset.FromUnixTimeMilliseconds(v));
-            b.HasIndex(f => new { f.ScanId, f.ParentPath });
+            b.HasIndex(f => new { f.ScanId, f.ParentDirectoryId });
             b.HasIndex(f => new { f.ScanId, f.Extension });
-            b.HasIndex(f => new { f.ScanId, f.SizeBytes });
+            // No index on SizeBytes: nothing queries FileEntries by size alone (GetFiles sorts an
+            // already-ParentDirectoryId-filtered result in memory), so it was pure dead weight.
         });
     }
 }
