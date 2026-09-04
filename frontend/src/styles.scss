@@ -18,14 +18,22 @@ html {
       density: 0,
     )
   );
+
+  // mat.theme() emits every system colour as `light-dark(<light>, <dark>)`, so `color-scheme`
+  // alone decides which half resolves — no second theme block needed. Default is to follow the
+  // OS; ThemeService sets data-theme on <html> when the user picks an explicit side.
+  color-scheme: light dark;
+
+  &[data-theme='light'] {
+    color-scheme: light;
+  }
+
+  &[data-theme='dark'] {
+    color-scheme: dark;
+  }
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
-
   // Set a default background, font and text colors for the application using
   // Angular Material's system-level CSS variables. Learn more about these
   // variables at https://material.angular.dev/guide/system-variables

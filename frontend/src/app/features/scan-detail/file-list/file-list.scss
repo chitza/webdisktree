@@ -88,7 +88,7 @@ mat-paginator {
     mat-icon {
       flex: 0 0 auto;
       margin-right: 4px;
-      color: rgba(0, 0, 0, 0.54);
+      color: var(--mat-sys-on-surface-variant);
     }
 
     .name-text {
@@ -102,7 +102,8 @@ mat-paginator {
     .drill-chevron {
       margin-right: 0;
       margin-left: 4px;
-      color: rgba(0, 0, 0, 0.3);
+      // Deliberately dimmer than the leading icon — it's an affordance hint, not content.
+      color: color-mix(in srgb, var(--mat-sys-on-surface) 40%, transparent);
     }
   }
 }
@@ -111,6 +112,7 @@ mat-paginator {
   cursor: pointer;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.04);
+    // Tints against whichever surface is active, rather than assuming a light one.
+    background: color-mix(in srgb, var(--mat-sys-on-surface) 6%, transparent);
   }
 }
