@@ -2,6 +2,7 @@ import { Component, OnChanges, inject, input, signal } from '@angular/core';
 import { FileService } from '../../../core/services/file.service';
 import { TypeBreakdownEntry } from '../../../core/models/file-entry.model';
 import { FormatBytesPipe } from '../../../shared/format-bytes.pipe';
+import { HierarchyColorScale } from '../treemap/hierarchy-colors';
 
 @Component({
   selector: 'app-type-breakdown',
@@ -16,6 +17,10 @@ export class TypeBreakdown implements OnChanges {
 
   readonly entries = signal<TypeBreakdownEntry[]>([]);
   readonly loading = signal(true);
+
+  // Same hashing scale the treemap/sunburst use, so an extension keeps one colour across
+  // every view rather than being a flat accent bar here.
+  private readonly hierarchyColors = new HierarchyColorScale();
 
   ngOnChanges(): void {
     this.loading.set(true);
@@ -34,5 +39,9 @@ export class TypeBreakdown implements OnChanges {
 
   barWidth(entry: TypeBreakdownEntry): string {
     return `${Math.max(2, (entry.totalSizeBytes / this.maxSize()) * 100)}%`;
+  }
+
+  barColor(entry: TypeBreakdownEntry): string {
+    return this.hierarchyColors.colorFor(entry.extension);
   }
 }

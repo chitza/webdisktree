@@ -8,7 +8,7 @@
       <div class="breakdown-row">
         <span class="ext">{{ entry.extension }}</span>
         <div class="bar-track">
-          <div class="bar-fill" [style.width]="barWidth(entry)"></div>
+          <div class="bar-fill" [style.width]="barWidth(entry)" [style.background]="barColor(entry)"></div>
         </div>
         <span class="size">{{ entry.totalSizeBytes | formatBytes }}</span>
         <span class="count">{{ entry.fileCount }} files</span>

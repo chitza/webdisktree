@@ -1,7 +1,14 @@
+@use '../../../../styles/tokens';
+
 :host {
   display: block;
   height: 100%;
   overflow-y: auto;
+  border: 1px solid var(--wdt-rule);
+  border-radius: var(--wdt-radius);
+  background: var(--wdt-panel);
+  padding: 10px 12px;
+  box-sizing: border-box;
 }
 
 .breakdown-list {
@@ -19,29 +26,35 @@
 }
 
 .ext {
-  font-weight: 600;
+  @include tokens.mono;
+  font-weight: 500;
+  color: var(--wdt-ink);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .bar-track {
-  background: color-mix(in srgb, var(--mat-sys-on-surface) 10%, transparent);
-  border-radius: 3px;
+  background: color-mix(in srgb, var(--wdt-ink) 10%, transparent);
+  border-radius: var(--wdt-radius);
   height: 10px;
   overflow: hidden;
 }
 
+// Bars are coloured per extension from the same shared scale the treemap uses, so a file type
+// keeps one identity across every view rather than turning generic-accent here.
 .bar-fill {
-  background: var(--mat-sys-primary);
   height: 100%;
 }
 
 .size {
+  @include tokens.mono;
   text-align: right;
+  color: var(--wdt-ink);
 }
 
 .count {
-  color: var(--mat-sys-on-surface-variant);
+  @include tokens.mono;
+  color: var(--wdt-muted);
   text-align: right;
 }

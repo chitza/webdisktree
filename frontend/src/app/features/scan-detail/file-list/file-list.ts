@@ -3,7 +3,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { SelectionModel } from '@angular/cdk/collections';
 import { FileService } from '../../../core/services/file.service';
@@ -18,7 +17,6 @@ import { LocalDatePipe } from '../../../shared/local-date.pipe';
     MatSortModule,
     MatPaginatorModule,
     MatCheckboxModule,
-    MatButtonModule,
     MatIconModule,
     FormatBytesPipe,
     LocalDatePipe,

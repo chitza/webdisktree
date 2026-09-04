@@ -4,7 +4,6 @@ import { RouterLink } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
 import { ScanService } from '../../core/services/scan.service';
 import { ScanStatus, ScanSummary, ScanTrigger } from '../../core/models/scan.model';
 import { FormatBytesPipe } from '../../shared/format-bytes.pipe';
@@ -17,7 +16,6 @@ import { FormatCountPipe } from '../../shared/format-count.pipe';
     MatTableModule,
     MatButtonModule,
     MatIconModule,
-    MatChipsModule,
     FormatBytesPipe,
     FormatCountPipe,
     DatePipe,

@@ -1,3 +1,12 @@
+@use '../../../styles/tokens';
+
+h1 {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 16px;
+}
+
 .new-schedule-card {
   max-width: 640px;
   margin-bottom: 24px;
@@ -15,9 +24,26 @@
 }
 
 .error {
-  color: var(--mat-sys-error, #b00020);
+  color: var(--wdt-status-failed);
 }
 
 .schedules-table {
   width: 100%;
+
+  // Cron expressions, paths and timestamps are all mono — this table is dense reference data.
+  .mat-column-rootPath,
+  .mat-column-lastRunAt,
+  .mat-column-nextRunAt {
+    @include tokens.mono;
+  }
+
+  code {
+    @include tokens.mono;
+    padding: 2px 6px;
+    border: 1px solid var(--wdt-rule);
+    border-radius: var(--wdt-radius);
+    background: var(--wdt-panel);
+    font-size: 12px;
+    color: var(--wdt-accent);
+  }
 }

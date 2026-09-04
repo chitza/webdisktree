@@ -1,3 +1,5 @@
+@use '../../../../styles/tokens';
+
 // Fills the split area's fixed height (not just display:block, which only grows to fit
 // content) so .table-scroll below can be given a flex-basis to scroll internally, leaving
 // the toolbar and paginator pinned in view above/below it.
@@ -5,6 +7,10 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  border: 1px solid var(--wdt-rule);
+  border-radius: var(--wdt-radius);
+  background: var(--wdt-panel);
+  overflow: hidden;
 }
 
 .toolbar {
@@ -12,16 +18,67 @@
   flex: 0 0 auto;
   display: flex;
   align-items: center;
+  gap: 8px;
   padding: 0 8px;
+  border-bottom: 1px solid var(--wdt-rule);
 
+  .up-button {
+    @include tokens.flat-control;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 10px;
+    font-weight: 500;
+    color: var(--wdt-accent);
+
+    &:hover:not(:disabled) {
+      color: var(--wdt-accent-hover);
+      border-color: var(--wdt-rule);
+    }
+
+    &:disabled {
+      color: var(--wdt-dim);
+      cursor: default;
+    }
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  // Outlined rather than filled: deleting is destructive, so it should read as deliberate
+  // without shouting on every render.
   .delete-button {
+    @include tokens.flat-control;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     margin-left: auto;
+    height: 28px;
+    padding: 0 10px;
+    font-weight: 500;
+    color: var(--wdt-status-failed);
+    border-color: var(--wdt-status-failed);
+
+    &:hover {
+      background: color-mix(in srgb, var(--wdt-status-failed) 12%, transparent);
+    }
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
   }
 }
 
 .error {
   flex: 0 0 auto;
-  color: var(--mat-sys-error, #b00020);
+  padding: 0 8px;
+  color: var(--wdt-status-failed);
 }
 
 // Only this element scrolls — the paginator below it and the toolbar above stay in place
@@ -34,6 +91,8 @@
 
 mat-paginator {
   flex: 0 0 auto;
+  border-top: 1px solid var(--wdt-rule);
+  background: var(--wdt-panel);
 }
 
 .file-table {
@@ -43,6 +102,7 @@ mat-paginator {
   // browser actually honor `width: 100%` as a hard cap.
   table-layout: fixed;
   font-size: 13px;
+  background: transparent;
 
   --mat-table-header-container-height: 40px;
   --mat-table-row-item-container-height: 32px;
@@ -57,7 +117,7 @@ mat-paginator {
     position: sticky;
     top: 0;
     z-index: 1;
-    background: var(--mat-sys-surface, #fff);
+    background: var(--wdt-panel);
   }
 
   .mat-column-select {
@@ -69,11 +129,19 @@ mat-paginator {
   // so it should get whatever width is left over rather than splitting evenly (table-layout:
   // fixed gives every unsized column an equal share by default).
   .mat-column-sizeBytes {
+    @include tokens.mono;
     width: 100px;
+    color: var(--wdt-ink);
   }
 
   .mat-column-modifiedUtc {
-    width: 150px;
+    @include tokens.mono;
+    // Wider than the 150px this column used to be: Plex Mono runs wider than Inter at the
+    // same size, and a wrapped timestamp breaks the 32px row rhythm.
+    width: 172px;
+    font-size: 12px;
+    white-space: nowrap;
+    color: var(--wdt-muted);
   }
 
   .mat-column-name {
@@ -93,10 +161,11 @@ mat-paginator {
     mat-icon {
       flex: 0 0 auto;
       margin-right: 4px;
-      color: var(--mat-sys-on-surface-variant);
+      color: var(--wdt-muted);
     }
 
     .name-text {
+      @include tokens.mono;
       flex: 1 1 auto;
       min-width: 0;
       overflow: hidden;
@@ -108,7 +177,7 @@ mat-paginator {
       margin-right: 0;
       margin-left: 4px;
       // Deliberately dimmer than the leading icon — it's an affordance hint, not content.
-      color: color-mix(in srgb, var(--mat-sys-on-surface) 40%, transparent);
+      color: var(--wdt-dim);
     }
   }
 }
@@ -117,7 +186,6 @@ mat-paginator {
   cursor: pointer;
 
   &:hover {
-    // Tints against whichever surface is active, rather than assuming a light one.
-    background: color-mix(in srgb, var(--mat-sys-on-surface) 6%, transparent);
+    background: var(--wdt-accent-wash);
   }
 }

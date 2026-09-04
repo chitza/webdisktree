@@ -1,21 +1,35 @@
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
+// WebDiskTree global theme — "terminal / instrument".
+//
+// Angular Material stays the substrate (tables, menus, form fields, toggles), but it is
+// re-tokenized rather than used at its scaffold defaults: custom M3 palettes generated from the
+// signal-green seed, Inter + IBM Plex Mono, and a set of --mat-sys-* overrides that pull
+// Material's surfaces onto the near-black slate grounds this theme is built on.
 @use '@angular/material' as mat;
 @use 'angular-split/theme';
+@use './styles/theme-colors' as wdt-palette;
+@use './styles/tokens';
+
+// mat.theme() resolves these at build time into the --mat-sys-*-family tokens and the
+// `font:` shorthands, so they must be literal font stacks — passing a CSS custom property
+// here silently drops the family from every shorthand it generates.
+$font-sans: Inter, 'Helvetica Neue', Arial, sans-serif;
 
 html {
   height: 100%;
   @include mat.theme(
     (
       color: (
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
+        primary: wdt-palette.$primary-palette,
+        tertiary: wdt-palette.$tertiary-palette,
       ),
-      typography: Roboto,
-      density: 0,
+      typography: (
+        plain-family: $font-sans,
+        brand-family: $font-sans,
+      ),
+      // -1 tightens Material's controls a step; this is a dense read-a-lot tool and the
+      // scaffold's density 0 left buttons and form fields looking oversized next to the
+      // 32px table rows.
+      density: -1,
     )
   );
 
@@ -31,28 +45,107 @@ html {
   &[data-theme='dark'] {
     color-scheme: dark;
   }
-}
 
-// Match the angular-split gutter to the Material theme instead of its default flat gray.
-as-split {
-  --as-gutter-background-color: var(--mat-sys-outline-variant);
-}
+  // The generated palettes give Material coherent tonal ramps, but its neutral tones are
+  // blue-tinted and lighter than this theme's ground. Re-point the surface//outline/primary
+  // system tokens at the app tokens so Material components sit on the same slate as the custom
+  // chrome. Declared after mat.theme() so these win.
+  --mat-sys-surface: var(--wdt-ground);
+  --mat-sys-background: var(--wdt-ground);
+  --mat-sys-on-surface: var(--wdt-ink);
+  --mat-sys-on-background: var(--wdt-ink);
+  --mat-sys-on-surface-variant: var(--wdt-muted);
+  --mat-sys-surface-variant: var(--wdt-panel);
 
-as-split .as-split-gutter:hover,
-as-split .as-split-gutter.as-dragged {
-  --as-gutter-background-color: var(--mat-sys-primary);
+  --mat-sys-surface-container-lowest: var(--wdt-ground);
+  --mat-sys-surface-container-low: var(--wdt-ground);
+  --mat-sys-surface-container: var(--wdt-panel);
+  --mat-sys-surface-container-high: var(--wdt-panel);
+  --mat-sys-surface-container-highest: var(--wdt-panel);
+
+  --mat-sys-outline: var(--wdt-muted);
+  --mat-sys-outline-variant: var(--wdt-rule);
+
+  --mat-sys-primary: var(--wdt-accent);
+  --mat-sys-on-primary: var(--wdt-on-accent);
+
+  --mat-sys-error: var(--wdt-status-failed);
+
+  // Flat by design: the instrument look carries structure with hairlines, so Material's
+  // elevation shadows are removed rather than restyled.
+  --mat-sys-level0: none;
+  --mat-sys-level1: none;
+  --mat-sys-level2: none;
+  --mat-sys-level3: none;
+  --mat-sys-level4: none;
+  --mat-sys-level5: none;
+
+  --mat-sys-corner-extra-small: var(--wdt-radius);
+  --mat-sys-corner-small: var(--wdt-radius);
+  --mat-sys-corner-medium: var(--wdt-radius);
+  --mat-sys-corner-large: var(--wdt-radius);
+
+  // Component-level tokens, not system ones: Material's own `.mat-mdc-card` rule sets
+  // background-color from these and is emitted after this file, so a plain `.mat-mdc-card`
+  // background declaration here loses the cascade at equal specificity. Setting the token
+  // instead wins cleanly.
+  --mat-card-elevated-container-color: var(--wdt-panel);
+  --mat-card-filled-container-color: var(--wdt-panel);
+  --mat-card-outlined-container-color: var(--wdt-panel);
+  --mat-card-outlined-outline-color: var(--wdt-rule);
+
+  // Same story for the table: colours come from these tokens, so setting them is what actually
+  // demotes the header to a label row instead of matching the content weight.
+  --mat-table-background-color: transparent;
+  --mat-table-header-headline-color: var(--wdt-muted);
+  --mat-table-header-headline-weight: 500;
+  --mat-table-row-item-label-text-color: var(--wdt-ink);
+  --mat-table-row-item-outline-color: var(--wdt-rule);
 }
 
 body {
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
+  background-color: var(--wdt-ground);
+  color: var(--wdt-ink);
+  font-family: var(--wdt-font-sans);
+  font-size: 13px;
 
   // Reset the user agent margin.
   margin: 0;
   height: 100%;
 }
-/* You can add global styles to this file, and also import other style files */
+
+// Paths, sizes, counts and timestamps are mono everywhere they appear, so columns of digits
+// line up and long paths read as data rather than prose.
+.wdt-mono {
+  @include tokens.mono;
+}
+
+// Match the angular-split gutter to the theme instead of its default flat gray.
+as-split {
+  --as-gutter-background-color: var(--wdt-rule);
+}
+
+as-split .as-split-gutter:hover,
+as-split .as-split-gutter.as-dragged {
+  --as-gutter-background-color: var(--wdt-accent);
+}
+
+// Cards become hairline panels consistent with the custom chrome. The doubled class is
+// deliberate: it lifts specificity above Material's own single-class card rules, which are
+// emitted after this file and would otherwise win the border/radius too.
+.mat-mdc-card.mat-mdc-card {
+  border: 1px solid var(--wdt-rule);
+  border-radius: var(--wdt-radius);
+}
+
+// Colours for the table come from the --mat-table-* tokens above; this only adds the letter
+// spacing that makes the header read as a label row.
+.mat-mdc-table .mat-mdc-header-cell {
+  letter-spacing: 0.02em;
+}
+
+// Keep a visible focus ring — this is a keyboard-heavy, table-driven tool.
+:focus-visible {
+  outline: 1px solid var(--wdt-accent);
+  outline-offset: 1px;
+}

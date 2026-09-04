@@ -10,7 +10,7 @@
         }
       </span>
     </div>
-    <a mat-button routerLink="/scans"><mat-icon>arrow_back</mat-icon> Back to history</a>
+    <a class="back-link" routerLink="/scans"><mat-icon>arrow_back</mat-icon> Back to history</a>
   </div>
 
   <app-scan-progress-banner [scan]="s" (refresh)="onRefresh()" (rescan)="onRescan()" />
@@ -18,9 +18,9 @@
   @if (s.status === ScanStatus.Completed && breadcrumb().length > 0) {
     <nav class="breadcrumb">
       @for (crumb of breadcrumb(); track crumb.fullPath; let i = $index) {
-        <button mat-button (click)="onBreadcrumbClick(i)">{{ crumb.name }}</button>
+        <button type="button" class="crumb" (click)="onBreadcrumbClick(i)">{{ crumb.name }}</button>
         @if (!$last) {
-          <mat-icon inline>chevron_right</mat-icon>
+          <mat-icon inline class="separator">chevron_right</mat-icon>
         }
       }
     </nav>

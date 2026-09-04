@@ -1,33 +1,76 @@
+@use '../../../styles/tokens';
+
+h1 {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 16px;
+}
+
 .scans-table {
   width: 100%;
+
+  // Paths and every numeric column are mono so digits line up down the table and long root
+  // paths read as data rather than prose.
+  .mat-column-rootPath {
+    @include tokens.mono;
+    color: var(--wdt-ink);
+  }
+
+  .mat-column-startedAt,
+  .mat-column-totalBytes,
+  .mat-column-totalFiles {
+    @include tokens.mono;
+  }
 }
 
 .scan-row {
   cursor: pointer;
+
+  &:hover {
+    background: var(--wdt-accent-wash);
+  }
+}
+
+// Outlined pills, not filled chips: the fill-and-white-text treatment is the single most
+// generic status pattern there is, and an outline lets the five states sit quietly in a dense
+// table while still being unmistakable. Each colour is defined once in _tokens.scss with a
+// separate light-theme value, because these are read as *text* and must clear AA on both
+// grounds.
+.status-pill {
+  @include tokens.mono;
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 6px;
+  margin-right: 4px;
+  border: 1px solid currentColor;
+  border-radius: var(--wdt-radius);
+  background: transparent;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  white-space: nowrap;
 }
 
 .status-completed {
-  background: #2e7d32;
-  color: white;
+  color: var(--wdt-status-completed);
 }
 
 .status-running,
 .status-pending {
-  background: #1565c0;
-  color: white;
+  color: var(--wdt-status-running);
 }
 
 .status-failed {
-  background: #c62828;
-  color: white;
+  color: var(--wdt-status-failed);
 }
 
 .status-cancelled {
-  background: #616161;
-  color: white;
+  color: var(--wdt-status-cancelled);
 }
 
 .status-stale {
-  background: #ef6c00;
-  color: white;
+  color: var(--wdt-status-stale);
 }

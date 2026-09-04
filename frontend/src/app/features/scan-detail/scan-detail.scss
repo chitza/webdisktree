@@ -1,3 +1,5 @@
+@use '../../../styles/tokens';
+
 // app.scss constrains .content (our parent) to a definite height when this component is
 // routed; becoming a flex column here lets .detail-split below claim exactly what's left
 // after the header/banner/breadcrumb, instead of guessing at a fixed vh fraction.
@@ -15,14 +17,44 @@
   gap: 16px;
 
   h1 {
+    @include tokens.mono;
     margin: 0;
-    font-size: 20px;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--wdt-ink);
     word-break: break-all;
   }
 
   .subtitle {
-    color: var(--mat-sys-on-surface-variant);
+    @include tokens.mono;
+    color: var(--wdt-muted);
     font-size: 13px;
+  }
+
+  // Flat text link rather than a Material button — the toolbar and header are the two places
+  // stock Material chrome reads loudest.
+  .back-link {
+    @include tokens.flat-control;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 10px;
+    white-space: nowrap;
+    text-decoration: none;
+    font-weight: 500;
+    color: var(--wdt-accent);
+
+    &:hover {
+      color: var(--wdt-accent-hover);
+      border-color: var(--wdt-rule);
+    }
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
   }
 }
 
@@ -31,13 +63,38 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  gap: 2px;
+  margin-top: 4px;
   margin-bottom: 8px;
+
+  .crumb {
+    @include tokens.flat-control;
+    @include tokens.mono;
+    height: 32px;
+    padding: 0 8px;
+    color: var(--wdt-accent);
+
+    &:hover {
+      color: var(--wdt-accent-hover);
+      border-color: var(--wdt-rule);
+    }
+
+    // The deepest crumb is where you already are, so it reads as state rather than a link.
+    &:last-of-type {
+      color: var(--wdt-ink);
+      cursor: default;
+    }
+  }
+
+  .separator {
+    color: var(--wdt-dim);
+  }
 }
 
 .detail-split {
   flex: 1 1 auto;
   min-height: 400px;
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .detail-split-area {
@@ -54,6 +111,16 @@
 .view-switcher {
   flex: 0 0 auto;
   margin-bottom: 12px;
+
+  // Square off Material's pill-shaped segmented control and hairline it, so it matches the
+  // rest of the instrument chrome.
+  --mat-button-toggle-shape: var(--wdt-radius);
+  --mat-button-toggle-legacy-shape: var(--wdt-radius);
+
+  .mat-button-toggle-checked {
+    background: var(--wdt-accent);
+    color: var(--wdt-on-accent);
+  }
 }
 
 .viz-body {

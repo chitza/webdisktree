@@ -1,11 +1,11 @@
 <div class="toolbar">
-  <button mat-button [disabled]="!canGoUp()" (click)="up.emit()">
+  <button type="button" class="up-button" [disabled]="!canGoUp()" (click)="up.emit()">
     <mat-icon>arrow_upward</mat-icon>
     Up
   </button>
 
   @if (canDelete() && selection.selected.length > 0) {
-    <button mat-stroked-button color="warn" class="delete-button" (click)="deleteSelected()">
+    <button type="button" class="delete-button" (click)="deleteSelected()">
       <mat-icon>delete</mat-icon>
       Delete {{ selection.selected.length }} selected
     </button>
