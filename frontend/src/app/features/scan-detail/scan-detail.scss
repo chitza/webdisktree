@@ -1,4 +1,14 @@
+// app.scss constrains .content (our parent) to a definite height when this component is
+// routed; becoming a flex column here lets .detail-split below claim exactly what's left
+// after the header/banner/breadcrumb, instead of guessing at a fixed vh fraction.
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .header {
+  flex: 0 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -17,6 +27,7 @@
 }
 
 .breadcrumb {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -24,8 +35,8 @@
 }
 
 .detail-split {
-  height: 70vh;
-  min-height: 480px;
+  flex: 1 1 auto;
+  min-height: 400px;
   margin-top: 12px;
 }
 
