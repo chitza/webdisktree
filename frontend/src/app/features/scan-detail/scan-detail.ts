@@ -3,7 +3,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTabsModule } from '@angular/material/tabs';
 import { SplitAreaComponent, SplitComponent } from 'angular-split';
 import { ScanService } from '../../core/services/scan.service';
 import { FileService } from '../../core/services/file.service';
@@ -18,7 +17,7 @@ import { ScanProgressBanner } from './scan-progress-banner/scan-progress-banner'
 import { FormatBytesPipe } from '../../shared/format-bytes.pipe';
 import { FormatCountPipe } from '../../shared/format-count.pipe';
 
-type ViewMode = 'treemap' | 'stretched' | 'sunburst';
+type ViewMode = 'treemap' | 'stretched' | 'sunburst' | 'types';
 
 @Component({
   selector: 'app-scan-detail',
@@ -27,7 +26,6 @@ type ViewMode = 'treemap' | 'stretched' | 'sunburst';
     MatButtonModule,
     MatButtonToggleModule,
     MatIconModule,
-    MatTabsModule,
     SplitComponent,
     SplitAreaComponent,
     Treemap,
@@ -166,6 +164,10 @@ export class ScanDetail {
 
   onBreadcrumbClick(index: number): void {
     this.breadcrumb.update((crumbs) => crumbs.slice(0, index + 1));
+  }
+
+  onNavigateUp(): void {
+    this.onBreadcrumbClick(this.breadcrumb().length - 2);
   }
 
   onOpenByName(name: string): void {
