@@ -1,7 +1,6 @@
 import { Component, DestroyRef, OnChanges, SimpleChanges, inject, input, output, signal } from '@angular/core';
 import { Subscription, filter } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ScanProgressEvent, ScanProgressService } from '../../../core/services/scan-progress.service';
 import { ScanStatus, ScanSummary } from '../../../core/models/scan.model';
@@ -9,7 +8,7 @@ import { FormatBytesPipe } from '../../../shared/format-bytes.pipe';
 
 @Component({
   selector: 'app-scan-progress-banner',
-  imports: [MatProgressBarModule, MatButtonModule, MatIconModule, FormatBytesPipe],
+  imports: [MatProgressBarModule, MatIconModule, FormatBytesPipe],
   templateUrl: './scan-progress-banner.html',
   styleUrl: './scan-progress-banner.scss',
 })

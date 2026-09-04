@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "targets": {
+    "/scans/:id": {
+      "targetKind": "existing-ui",
+      "projectId": "7691dfbd-f9ca-4293-b04c-2a8fe04aecff",
+      "baselineDraftId": "106bc2a0-5d79-41b5-bd71-7db4dec33416",
+      "activeDraftId": "92e4580f-9c02-4862-b280-21e40888e0c0",
+      "designSystemPath": ".superdesign/design-system.md",
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        ".superdesign/init/theme.md",
+        "frontend/src/styles.scss",
+        "frontend/src/app/app.html",
+        "frontend/src/app/app.scss",
+        "frontend/src/app/features/scan-detail/scan-detail.html",
+        "frontend/src/app/features/scan-detail/scan-detail.scss",
+        "frontend/src/app/features/scan-detail/file-list/file-list.html",
+        "frontend/src/app/features/scan-detail/file-list/file-list.scss",
+        "frontend/src/app/features/scan-detail/scan-progress-banner/scan-progress-banner.html",
+        "frontend/src/app/features/scan-detail/scan-progress-banner/scan-progress-banner.scss",
+        "frontend/src/app/features/scan-detail/type-breakdown/type-breakdown.html",
+        "frontend/src/app/features/scan-detail/type-breakdown/type-breakdown.scss",
+        "frontend/src/app/features/scan-detail/treemap/treemap.scss",
+        "frontend/src/app/features/scan-detail/treemap/hierarchy-colors.ts"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "0d96ae265584d147f13db1dda5d22a0e24bd1be4e9873f6d12bac42a94d1443f",
+        ".superdesign/init/theme.md": "485baa1534e6f9cd7952de69d28eb7205762cb889baea77faad4f90c1fae42e5",
+        "frontend/src/styles.scss": "02fab341cab57f1b8731db343872d9b3b9a94c0a1dfd77cc3c5b6e1a465bca6a",
+        "frontend/src/app/app.html": "05bd600e173ed8273f004b21220d887386317a8c7afdfa840ebc03b368fe8a41",
+        "frontend/src/app/app.scss": "28370abbf821082ce423a38fbd3d8e9fa1c12fbfcd0770b6cf6c85863f096005",
+        "frontend/src/app/features/scan-detail/scan-detail.html": "aed612e7ec261cfcec836971f822a966fdaf8620eb04ae0638aec99cd5e74974",
+        "frontend/src/app/features/scan-detail/scan-detail.scss": "f8faff508701163528266a7105525e29ce75b75eb758ed37e02a8e923807b852",
+        "frontend/src/app/features/scan-detail/file-list/file-list.html": "18296e7a17b3adf2bf634489eda1d037c47727bfc24b3b0c3dcc7289a2f43424",
+        "frontend/src/app/features/scan-detail/file-list/file-list.scss": "bb87d7ef620205ce8c423b4feb8ec1bfffd48166bf81836fe6991b309d525cf4",
+        "frontend/src/app/features/scan-detail/scan-progress-banner/scan-progress-banner.html": "df3057b2b1a0b15d08dab0b9a09ac1c5bda2cf56a5e1b34b40574adc1807c747",
+        "frontend/src/app/features/scan-detail/scan-progress-banner/scan-progress-banner.scss": "652b4a038e1ed99afc379f1bdfab5fb7e1b80cad4fcc0c96fb4680949d3935bf",
+        "frontend/src/app/features/scan-detail/type-breakdown/type-breakdown.html": "58634a9a9446499476cfa036a33479a82a9a70a79cdb7088b7c972186cfcf389",
+        "frontend/src/app/features/scan-detail/type-breakdown/type-breakdown.scss": "42401fd1d1faea3d51624780d258c024450db99d899b8ba26c25c14fecfab9c2",
+        "frontend/src/app/features/scan-detail/treemap/treemap.scss": "7f94257d788b7118e4fe1562adac64a272a7fc18dd57bc48a38edf9f0fb629c9",
+        "frontend/src/app/features/scan-detail/treemap/hierarchy-colors.ts": "7866e81068cc862b71fecd35d2ad571c84880c7c6c820e754feadfe69bc3f50e"
+      },
+      "drafts": {
+        "106bc2a0-5d79-41b5-bd71-7db4dec33416": {
+          "title": "WebDiskTree — Scan Detail (Current State)",
+          "visualDirection": "baseline reproduction of the current stock Angular Material scaffold — not a design direction",
+          "currentVersion": 1
+        },
+        "92e4580f-9c02-4862-b280-21e40888e0c0": {
+          "title": "WebDiskTree — Terminal / Instrument (Direction A)",
+          "visualDirection": "Direction A: terminal/instrument — dark-primary slate ground, signal-green accent, Inter + IBM Plex Mono, 2px radii, hairline rules, outlined status pills",
+          "parentDraftId": "106bc2a0-5d79-41b5-bd71-7db4dec33416",
+          "currentVersion": 1
+        },
+        "2063f93f-ed8b-4b32-97d6-233fe97b5b9b": {
+          "title": "WebDiskTree — Scan Detail (Warm Editorial)",
+          "visualDirection": "Direction B: warm editorial — light-primary paper ground, burnt-amber accent, Fraunces/Spectral headings + Inter body, 6px radii, tinted status pills",
+          "parentDraftId": "106bc2a0-5d79-41b5-bd71-7db4dec33416",
+          "currentVersion": 1
+        },
+        "350aac35-99a1-4a4d-9538-6a7c5b6125a9": {
+          "title": "WebDiskTree — Deep Space (Scan Detail)",
+          "visualDirection": "Direction C: deep space — dark-primary navy void, cyan→magenta ordered viz ramp, Inter tabular figures, 8px radii, glow focus rings, chrome recedes",
+          "parentDraftId": "106bc2a0-5d79-41b5-bd71-7db4dec33416",
+          "currentVersion": 1
+        }
+      },
+      "updatedAt": "2026-09-04T20:43:06Z"
+    }
+  }
+}

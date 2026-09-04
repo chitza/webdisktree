@@ -13,7 +13,12 @@
           (click)="onSelect(d)"
         />
         @if (isLabelVisible(d)) {
-          <text [attr.transform]="labelTransform(d)" text-anchor="middle" dy="0.35em">{{ d.data.name }}</text>
+          <text
+            [attr.transform]="labelTransform(d)"
+            [attr.fill]="labelColorFor(d)"
+            text-anchor="middle"
+            dy="0.35em"
+          >{{ d.data.name }}</text>
         }
       }
     </g>

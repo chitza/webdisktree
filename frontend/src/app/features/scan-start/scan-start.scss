@@ -1,3 +1,5 @@
+@use '../../../styles/tokens';
+
 .scan-start-card {
   max-width: 480px;
 }
@@ -7,5 +9,5 @@
 }
 
 .error {
-  color: var(--mat-sys-error, #b00020);
+  color: var(--wdt-status-failed);
 }

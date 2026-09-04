@@ -4,7 +4,7 @@ import { arc, Arc } from 'd3-shape';
 import { DirectoryNode } from '../../../core/models/directory-node.model';
 import { FormatBytesPipe } from '../../../shared/format-bytes.pipe';
 import { buildTreemapNode, TreemapNode } from '../treemap/treemap-layout';
-import { ExtensionColorScale, colorForTreemapNode } from '../treemap/hierarchy-colors';
+import { HierarchyColorScale, colorForTreemapNode, labelColorFor } from '../treemap/hierarchy-colors';
 
 const MAX_VISIBLE_DEPTH = 3;
 const MIN_LABEL_ARC_LENGTH = 16;
@@ -35,7 +35,7 @@ export class Sunburst implements AfterViewInit, OnDestroy {
 
   readonly size = signal<{ width: number; height: number }>({ width: 0, height: 0 });
   readonly hover = signal<HoverInfo | null>(null);
-  private readonly extensionColors = new ExtensionColorScale();
+  private readonly hierarchyColors = new HierarchyColorScale();
 
   private readonly radialLayout = computed<RadialLayout | null>(() => {
     const plain = buildTreemapNode(this.node(), MAX_VISIBLE_DEPTH);
@@ -85,7 +85,13 @@ export class Sunburst implements AfterViewInit, OnDestroy {
   }
 
   colorFor(d: HierarchyRectangularNode<TreemapNode>): string {
-    return colorForTreemapNode(d.data, this.extensionColors);
+    return colorForTreemapNode(d.data, this.hierarchyColors);
+  }
+
+  /** Label ink follows the arc's own fill rather than the theme — the ramp spans bright hues
+   * where the previously hardcoded white was unreadable. */
+  labelColorFor(d: HierarchyRectangularNode<TreemapNode>): string {
+    return labelColorFor(this.colorFor(d));
   }
 
   isLabelVisible(d: HierarchyRectangularNode<TreemapNode>): boolean {

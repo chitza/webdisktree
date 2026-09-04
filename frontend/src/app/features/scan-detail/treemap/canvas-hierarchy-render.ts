@@ -1,6 +1,6 @@
 import { HierarchyRectangularNode } from 'd3-hierarchy';
 import { TreemapNode } from './treemap-layout';
-import { ExtensionColorScale, colorForTreemapNode } from './hierarchy-colors';
+import { HierarchyColorScale, VizChrome, colorForTreemapNode, labelColorFor } from './hierarchy-colors';
 
 export const MIN_LABEL_WIDTH = 40;
 export const MIN_LABEL_HEIGHT = 16;
@@ -38,22 +38,26 @@ export function drawHierarchyNode(
   ctx: CanvasRenderingContext2D,
   node: HierarchyRectangularNode<TreemapNode>,
   isHovered: boolean,
-  extensionColors: ExtensionColorScale,
+  hierarchyColors: HierarchyColorScale,
+  chrome: VizChrome,
 ): void {
   const w = node.x1 - node.x0;
   const h = node.y1 - node.y0;
   if (w <= 0 || h <= 0) return;
 
-  ctx.fillStyle = colorForTreemapNode(node.data, extensionColors);
+  const fill = colorForTreemapNode(node.data, hierarchyColors);
+  ctx.fillStyle = fill;
   ctx.fillRect(node.x0, node.y0, w, h);
 
-  ctx.strokeStyle = isHovered ? '#ffffff' : 'rgba(255,255,255,0.25)';
+  ctx.strokeStyle = isHovered ? chrome.hoverStroke : chrome.separator;
   ctx.lineWidth = isHovered ? 2 : 1;
   ctx.strokeRect(node.x0, node.y0, w, h);
 
   if (w >= MIN_LABEL_WIDTH && h >= MIN_LABEL_HEIGHT) {
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '11px sans-serif';
+    // Follows the fill, not the theme: this ramp spans bright hues (#fbbf24, #a3e635) where
+    // the previous hardcoded white was unreadable.
+    ctx.fillStyle = labelColorFor(fill);
+    ctx.font = '11px "IBM Plex Mono", ui-monospace, monospace';
     ctx.textBaseline = 'top';
     const label = node.data.name;
     const maxChars = Math.floor(w / 6);

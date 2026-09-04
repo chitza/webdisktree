@@ -1,0 +1,86 @@
+// App-level design tokens for the "terminal / instrument" theme.
+//
+// Every colour is declared exactly once, via light-dark(): `color-scheme` on <html> (set in
+// styles.scss from ThemeService's data-theme attribute) picks the half that resolves, so there
+// is no second dark block to keep in sync. Anything Angular Material already owns is themed
+// through --mat-sys-* in styles.scss instead of duplicated here.
+
+:root {
+  // ---- Grounds and text ----------------------------------------------------
+  // ground = page background, panel = raised surfaces (file list, viz frame, cards).
+  --wdt-ground: #{light-dark(#f4f6f5, #0b0f14)};
+  --wdt-panel: #{light-dark(#ffffff, #131a22)};
+  --wdt-ink: #{light-dark(#10151a, #e4ecf2)};
+  --wdt-muted: #{light-dark(#5a6672, #8b9aa8)};
+  // Third tier, for affordance hints and disabled controls — deliberately dimmer than muted.
+  --wdt-dim: #{light-dark(#98a4ae, #475569)};
+
+  // ---- Structure -----------------------------------------------------------
+  // The instrument look carries structure with 1px hairlines instead of elevation, so this
+  // rule colour does the job shadows would in a stock Material theme.
+  --wdt-rule: #{light-dark(#d6dcdf, #232e39)};
+  --wdt-radius: 2px;
+
+  // ---- Accent --------------------------------------------------------------
+  // Signal green. The light value is darkened well past the dark-theme one: #4ade80 on a light
+  // ground is only ~1.5:1, nowhere near the AA floor this theme commits to.
+  --wdt-accent: #{light-dark(#1a7f4b, #4ade80)};
+  --wdt-accent-hover: #{light-dark(#156b3f, #6ee79b)};
+  // Foreground for text/icons sitting *on* a filled accent block.
+  --wdt-on-accent: #{light-dark(#ffffff, #0b0f14)};
+  // Low-alpha accent wash for hover/selected rows, tinted against whichever ground is active.
+  --wdt-accent-wash: #{light-dark(rgba(26, 127, 75, 0.09), rgba(74, 222, 128, 0.12))};
+
+  // ---- Status --------------------------------------------------------------
+  // Rendered as outlined pills (1px border + label in the status colour, transparent fill), so
+  // each value must clear AA as *text* on its own ground — hence a separate light-theme ramp.
+  --wdt-status-completed: #{light-dark(#15803d, #4ade80)};
+  --wdt-status-running: #{light-dark(#0369a1, #38bdf8)};
+  --wdt-status-failed: #{light-dark(#b91c1c, #f87171)};
+  --wdt-status-cancelled: #{light-dark(#475569, #94a3b8)};
+  --wdt-status-stale: #{light-dark(#b45309, #fbbf24)};
+
+  // ---- Type ----------------------------------------------------------------
+  --wdt-font-sans: Inter, 'Helvetica Neue', Arial, sans-serif;
+  // Paths, byte sizes, counts, timestamps and cron expressions. tabular-nums keeps table
+  // columns aligned as digits change.
+  --wdt-font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+// Applied to every element that shows a path, size, count or timestamp.
+@mixin mono {
+  font-family: var(--wdt-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+// Hover tooltip shared by the treemap, stretched treemap and sunburst. It floats over
+// saturated visualization fills rather than the page ground, so it is deliberately opaque and
+// theme-fixed instead of following the surface tokens.
+@mixin viz-tooltip {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  border: 1px solid var(--wdt-rule);
+  border-radius: var(--wdt-radius);
+  background: var(--wdt-panel);
+  color: var(--wdt-ink);
+  font-family: var(--wdt-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+// The shared shape of a sharp-cornered outlined control (nav links, breadcrumb crumbs,
+// toolbar buttons) — flat, hairline-bounded, no elevation.
+@mixin flat-control {
+  border-radius: var(--wdt-radius);
+  border: 1px solid transparent;
+  background: transparent;
+  font-family: var(--wdt-font-sans);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}

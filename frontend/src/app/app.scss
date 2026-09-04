@@ -1,3 +1,5 @@
+@use '../styles/tokens';
+
 // Constrains .content below to a definite height so scan-detail's own flex layout (header/
 // breadcrumb natural height, split panel filling the rest) has a real viewport-derived height
 // to fill, instead of the split panel guessing at a fixed vh fraction.
@@ -7,11 +9,23 @@
   height: 100%;
 }
 
-.toolbar {
+// Hand-built rather than <mat-toolbar color="primary">: a saturated primary band is the single
+// strongest "stock Angular app" tell, and this theme carries the shell on a hairline instead.
+.app-bar {
   flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 16px;
+  background: var(--wdt-ground);
+  border-bottom: 1px solid var(--wdt-rule);
 
   .brand {
-    font-weight: 600;
+    @include tokens.mono;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--wdt-ink);
     margin-right: 24px;
   }
 
@@ -19,14 +33,44 @@
     display: flex;
     gap: 4px;
 
-    .active {
-      font-weight: 600;
-      text-decoration: underline;
+    a {
+      display: flex;
+      align-items: center;
+      height: 32px;
+      padding: 0 10px;
+      font-size: 13px;
+      text-decoration: none;
+      color: var(--wdt-muted);
+      // Transparent by default so the active underline below doesn't shift the row by 1px.
+      border-bottom: 1px solid transparent;
+
+      &:hover {
+        color: var(--wdt-ink);
+      }
+
+      &.active {
+        color: var(--wdt-accent);
+        font-weight: 500;
+        border-bottom-color: var(--wdt-accent);
+      }
     }
   }
 
   .theme-toggle {
+    @include tokens.flat-control;
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    color: var(--wdt-muted);
+
+    &:hover {
+      color: var(--wdt-ink);
+      border-color: var(--wdt-rule);
+    }
   }
 }
 

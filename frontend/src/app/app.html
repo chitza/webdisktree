@@ -1,13 +1,13 @@
-<mat-toolbar color="primary" class="toolbar">
-  <span class="brand">WebDiskTree</span>
+<header class="app-bar">
+  <span class="brand">webdisktree</span>
   <nav class="nav-links">
-    <a mat-button routerLink="/scans" routerLinkActive="active">Scans</a>
-    <a mat-button routerLink="/scans/new" routerLinkActive="active">New Scan</a>
-    <a mat-button routerLink="/schedules" routerLinkActive="active">Schedules</a>
+    <a routerLink="/scans" routerLinkActive="active">Scans</a>
+    <a routerLink="/scans/new" routerLinkActive="active">New Scan</a>
+    <a routerLink="/schedules" routerLinkActive="active">Schedules</a>
   </nav>
 
   <button
-    mat-icon-button
+    type="button"
     class="theme-toggle"
     (click)="cycleTheme()"
     [attr.aria-label]="'Theme: ' + theme.preference() + '. Switch to ' + nextTheme() + '.'"
@@ -15,7 +15,7 @@
   >
     <mat-icon>{{ themeIcon() }}</mat-icon>
   </button>
-</mat-toolbar>
+</header>
 
 <main class="content">
   <router-outlet />

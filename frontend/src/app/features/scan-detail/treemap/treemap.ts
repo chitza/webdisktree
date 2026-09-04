@@ -6,6 +6,7 @@ import {
   ViewChild,
   computed,
   effect,
+  inject,
   input,
   output,
   signal,
@@ -15,7 +16,8 @@ import { DirectoryNode } from '../../../core/models/directory-node.model';
 import { FormatBytesPipe } from '../../../shared/format-bytes.pipe';
 import { buildTreemapNode, TreemapNode } from './treemap-layout';
 import { prepareCanvas, drawHierarchyNode, findHierarchyNodeAtPoint } from './canvas-hierarchy-render';
-import { ExtensionColorScale } from './hierarchy-colors';
+import { HierarchyColorScale, vizChromeFor } from './hierarchy-colors';
+import { ThemeService } from '../../../core/services/theme.service';
 
 const MAX_VISIBLE_DEPTH = 2;
 
@@ -42,7 +44,8 @@ export class Treemap implements AfterViewInit, OnDestroy {
 
   private layoutRoot: HierarchyRectangularNode<TreemapNode> | null = null;
   private resizeObserver: ResizeObserver | null = null;
-  private readonly extensionColors = new ExtensionColorScale();
+  private readonly hierarchyColors = new HierarchyColorScale();
+  private readonly theme = inject(ThemeService);
 
   private readonly layout = computed(() => {
     const plain = buildTreemapNode(this.node(), MAX_VISIBLE_DEPTH);
@@ -55,6 +58,9 @@ export class Treemap implements AfterViewInit, OnDestroy {
   constructor() {
     effect(() => {
       this.layout();
+      // Read inside the effect so switching light/dark (or the OS flipping under
+      // `system`) repaints — canvas can't pick up CSS custom properties on its own.
+      this.theme.resolved();
       this.render();
     });
   }
@@ -91,9 +97,10 @@ export class Treemap implements AfterViewInit, OnDestroy {
 
     this.layoutRoot = treemapLayout(rootHierarchy);
 
+    const chrome = vizChromeFor(this.theme.resolved());
     for (const node of this.layoutRoot.descendants()) {
       if (node.depth === 0) continue;
-      drawHierarchyNode(ctx, node, this.hover()?.node === node, this.extensionColors);
+      drawHierarchyNode(ctx, node, this.hover()?.node === node, this.hierarchyColors, chrome);
     }
   }
 

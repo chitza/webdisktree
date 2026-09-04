@@ -1,6 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { SplitAreaComponent, SplitComponent } from 'angular-split';
@@ -23,7 +22,6 @@ type ViewMode = 'treemap' | 'stretched' | 'sunburst' | 'types';
   selector: 'app-scan-detail',
   imports: [
     RouterLink,
-    MatButtonModule,
     MatButtonToggleModule,
     MatIconModule,
     SplitComponent,

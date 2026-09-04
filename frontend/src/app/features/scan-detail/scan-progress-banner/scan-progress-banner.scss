@@ -1,28 +1,60 @@
+@use '../../../../styles/tokens';
+
+// Banners are hairline-outlined and tinted from their own status colour rather than filled
+// with a Material container token — same construction as the status pills, so a running scan
+// reads the same in the banner and in the history table.
 .banner {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 8px 12px;
-  border-radius: 4px;
+  border: 1px solid;
+  border-radius: var(--wdt-radius);
   margin-bottom: 12px;
   font-size: 13px;
+
+  mat-icon {
+    flex: 0 0 auto;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .banner-action {
+    @include tokens.flat-control;
+    margin-left: auto;
+    height: 28px;
+    padding: 0 10px;
+    font-weight: 500;
+    color: inherit;
+    border-color: currentColor;
+
+    &:hover {
+      background: color-mix(in srgb, currentColor 12%, transparent);
+    }
+  }
 }
 
-// The container/on-container token pairs below carry their own contrast in both colour schemes,
-// unlike the low-alpha tints they replaced, which washed out to nothing on a dark surface.
 .banner-running {
   flex-direction: column;
   align-items: stretch;
-  background: var(--mat-sys-primary-container);
-  color: var(--mat-sys-on-primary-container);
+  color: var(--wdt-status-running);
+  border-color: color-mix(in srgb, var(--wdt-status-running) 45%, transparent);
+  background: color-mix(in srgb, var(--wdt-status-running) 10%, transparent);
+
+  --mat-progress-bar-active-indicator-color: var(--wdt-status-running);
+  --mat-progress-bar-track-color: color-mix(in srgb, var(--wdt-status-running) 22%, transparent);
 
   .banner-text {
     display: flex;
     justify-content: space-between;
-    margin-top: 4px;
+    gap: 12px;
+    margin-top: 6px;
+    color: var(--wdt-ink);
 
     .detail {
-      opacity: 0.75;
+      @include tokens.mono;
+      color: var(--wdt-muted);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -32,11 +64,13 @@
 }
 
 .banner-error {
-  background: var(--mat-sys-error-container);
-  color: var(--mat-sys-on-error-container);
+  color: var(--wdt-status-failed);
+  border-color: color-mix(in srgb, var(--wdt-status-failed) 45%, transparent);
+  background: color-mix(in srgb, var(--wdt-status-failed) 10%, transparent);
 }
 
 .banner-stale {
-  background: var(--mat-sys-tertiary-container);
-  color: var(--mat-sys-on-tertiary-container);
+  color: var(--wdt-status-stale);
+  border-color: color-mix(in srgb, var(--wdt-status-stale) 45%, transparent);
+  background: color-mix(in srgb, var(--wdt-status-stale) 10%, transparent);
 }

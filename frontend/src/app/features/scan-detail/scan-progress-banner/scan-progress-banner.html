@@ -14,12 +14,12 @@
   <div class="banner banner-error">
     <mat-icon>error</mat-icon>
     <span>Scan failed: {{ scan().errorMessage }}</span>
-    <button mat-button (click)="rescan.emit()">Retry</button>
+    <button type="button" class="banner-action" (click)="rescan.emit()">Retry</button>
   </div>
 } @else if (scan().isStale) {
   <div class="banner banner-stale">
     <mat-icon>warning</mat-icon>
     <span>This view is stale (files were deleted since the scan ran).</span>
-    <button mat-button (click)="rescan.emit()">Rescan</button>
+    <button type="button" class="banner-action" (click)="rescan.emit()">Rescan</button>
   </div>
 }
