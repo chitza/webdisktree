@@ -1,4 +1,15 @@
+// Constrains .content below to a definite height so scan-detail's own flex layout (header/
+// breadcrumb natural height, split panel filling the rest) has a real viewport-derived height
+// to fill, instead of the split panel guessing at a fixed vh fraction.
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .toolbar {
+  flex: 0 0 auto;
+
   .brand {
     font-weight: 600;
     margin-right: 24px;
@@ -16,12 +27,26 @@
 }
 
 .content {
+  flex: 1 1 auto;
+  min-height: 0; // flexbox gotcha: without this the child won't shrink below its content size
+  overflow-y: auto;
+  // Explicit width rather than relying on the flex default (stretch): `margin: 0 auto` is an
+  // auto cross-axis margin, which per spec suppresses stretch and shrink-wraps the item
+  // instead. Firefox does exactly that; Blink stretches anyway, so without this the layout
+  // collapses to content width on Firefox only.
+  width: 100%;
+  box-sizing: border-box;
   max-width: 1400px;
   margin: 0 auto;
   padding: 16px 24px;
 
-  // The scan detail view (treemap/sunburst) benefits from using the full viewport width.
+  // The scan detail view (treemap/sunburst) benefits from using the full viewport width and
+  // height — it manages its own internal scrolling (file list, tree panels) rather than the
+  // whole page scrolling.
   &:has(app-scan-detail) {
     max-width: none;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 }

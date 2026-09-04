@@ -3,7 +3,8 @@
     <div>
       <h1>{{ s.rootPath }}</h1>
       <span class="subtitle">
-        {{ s.totalBytes | formatBytes }} · {{ s.totalFiles }} files · {{ s.totalDirs }} folders
+        {{ s.totalBytes | formatBytes }} · {{ s.totalFiles | formatCount }} files ·
+        {{ s.totalDirs | formatCount }} folders
         @if (s.errorCount > 0) {
           · {{ s.errorCount }} unreadable paths
         }

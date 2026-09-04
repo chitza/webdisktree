@@ -16,6 +16,7 @@ import { FileList } from './file-list/file-list';
 import { TypeBreakdown } from './type-breakdown/type-breakdown';
 import { ScanProgressBanner } from './scan-progress-banner/scan-progress-banner';
 import { FormatBytesPipe } from '../../shared/format-bytes.pipe';
+import { FormatCountPipe } from '../../shared/format-count.pipe';
 
 type ViewMode = 'treemap' | 'stretched' | 'sunburst';
 
@@ -36,6 +37,7 @@ type ViewMode = 'treemap' | 'stretched' | 'sunburst';
     TypeBreakdown,
     ScanProgressBanner,
     FormatBytesPipe,
+    FormatCountPipe,
   ],
   templateUrl: './scan-detail.html',
   styleUrl: './scan-detail.scss',
