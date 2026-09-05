@@ -51,6 +51,11 @@
             <mat-icon>cancel</mat-icon>
           </button>
         }
+        @if (isDeletable(scan)) {
+          <button mat-icon-button (click)="remove(scan, $event)" aria-label="Delete scan">
+            <mat-icon>delete</mat-icon>
+          </button>
+        }
       </td>
     </ng-container>
 

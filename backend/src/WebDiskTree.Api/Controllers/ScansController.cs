@@ -93,6 +93,34 @@ public class ScansController(
         return NoContent();
     }
 
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteScan(Guid id, CancellationToken cancellationToken)
+    {
+        var scan = await dbContext.Scans.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+        if (scan is null)
+        {
+            return NotFound();
+        }
+
+        if (scan.Status is ScanStatus.Pending or ScanStatus.Running)
+        {
+            return Conflict("Scan is still in progress. Cancel it before deleting.");
+        }
+
+        await dbContext.FileEntries.Where(f => f.ScanId == id).ExecuteDeleteAsync(cancellationToken);
+        await dbContext.DirectoryPaths.Where(d => d.ScanId == id).ExecuteDeleteAsync(cancellationToken);
+
+        if (scan.BlobPath is not null && System.IO.File.Exists(scan.BlobPath))
+        {
+            System.IO.File.Delete(scan.BlobPath);
+        }
+
+        dbContext.Scans.Remove(scan);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return NoContent();
+    }
+
     private static ScanSummaryDto ToDto(ScanEntity s) => new(
         s.Id, s.RootPath, s.Trigger, s.Status, s.StartedAt, s.CompletedAt,
         s.TotalBytes, s.TotalFiles, s.TotalDirs, s.ErrorCount, s.IsStale, s.ErrorMessage);

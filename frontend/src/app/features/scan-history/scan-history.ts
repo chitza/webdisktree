@@ -53,8 +53,21 @@ export class ScanHistory {
     this.scanService.cancelScan(scan.id).subscribe(() => this.load());
   }
 
+  remove(scan: ScanSummary, event: Event): void {
+    event.stopPropagation();
+    event.preventDefault();
+    if (!confirm(`Delete the scan of "${scan.rootPath}"? This cannot be undone.`)) {
+      return;
+    }
+    this.scanService.deleteScan(scan.id).subscribe(() => this.load());
+  }
+
   isCancellable(scan: ScanSummary): boolean {
     return scan.status === ScanStatus.Pending || scan.status === ScanStatus.Running;
+  }
+
+  isDeletable(scan: ScanSummary): boolean {
+    return !this.isCancellable(scan);
   }
 
   statusLabel(status: ScanStatus): string {
