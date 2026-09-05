@@ -44,6 +44,9 @@ public class ScheduleEvaluatorService(
         var now = DateTimeOffset.UtcNow;
         var schedules = await dbContext.Schedules.Where(s => s.Enabled).ToListAsync(cancellationToken);
 
+        var dirty = false;
+        var dueJobs = new List<ScanJobRequest>();
+
         foreach (var schedule in schedules)
         {
             CronExpression cron;
@@ -57,7 +60,11 @@ public class ScheduleEvaluatorService(
                 continue;
             }
 
-            schedule.NextRunAt ??= cron.GetNextOccurrence(schedule.LastRunAt?.UtcDateTime ?? now.UtcDateTime, TimeZoneInfo.Utc);
+            if (schedule.NextRunAt is null)
+            {
+                schedule.NextRunAt = cron.GetNextOccurrence(schedule.LastRunAt?.UtcDateTime ?? now.UtcDateTime, TimeZoneInfo.Utc);
+                dirty = true;
+            }
 
             if (schedule.NextRunAt is { } nextRun && nextRun <= now)
             {
@@ -72,10 +79,20 @@ public class ScheduleEvaluatorService(
 
                 schedule.LastRunAt = now;
                 schedule.NextRunAt = cron.GetNextOccurrence(now.UtcDateTime, TimeZoneInfo.Utc);
+                dirty = true;
 
-                await dbContext.SaveChangesAsync(cancellationToken);
-                queue.Enqueue(new ScanJobRequest(scanId, schedule.RootPath, ScanTrigger.Scheduled));
+                dueJobs.Add(new ScanJobRequest(scanId, schedule.RootPath, ScanTrigger.Scheduled));
             }
+        }
+
+        if (dirty)
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        foreach (var job in dueJobs)
+        {
+            queue.Enqueue(job);
         }
     }
 }
