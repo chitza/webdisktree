@@ -26,4 +26,8 @@ export class ScanService {
   cancelScan(id: string): Observable<void> {
     return this.http.post<void>(`/api/scans/${id}/cancel`, {});
   }
+
+  deleteScan(id: string): Observable<void> {
+    return this.http.delete<void>(`/api/scans/${id}`);
+  }
 }
