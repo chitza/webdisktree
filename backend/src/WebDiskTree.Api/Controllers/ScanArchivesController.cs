@@ -36,7 +36,7 @@ public class ScanArchivesController(
         if (tree is null) return Conflict("The saved tree is unavailable.");
         var files = await (from file in db.FileEntries.AsNoTracking()
                            join directory in db.DirectoryPaths on file.ParentDirectoryId equals directory.Id
-                           where file.ScanId == id
+                           where file.ScanSeq == scan.SeqId
                            select new FlatFileRow(directory.Path, file.Name, file.Extension,
                                file.SizeBytes, file.ModifiedUtc, file.IsDirectory)).ToListAsync(cancellationToken);
         var summary = new ScanSummaryDto(scan.Id, scan.RootPath, scan.Trigger, scan.Status,
@@ -84,16 +84,19 @@ public class ScanArchivesController(
         };
         try
         {
-            // Publish the scan only once both the tree and all listing batches are stored.
             await serializer.WriteAsync(blobPath, archive.Tree, cancellationToken);
-            await writer.WriteAsync(id, archive.Files, cancellationToken);
+            // The Scans row must be saved before the bulk write: FileEntries/DirectoryPaths reference the
+            // scan by the autoincrement SeqId minted here, not by the public Guid Id. If the bulk write below
+            // fails, the catch block below rolls this back too.
             db.Scans.Add(scan);
             await db.SaveChangesAsync(cancellationToken);
+            await writer.WriteAsync(scan.SeqId, archive.Files, cancellationToken);
         }
         catch
         {
-            await db.FileEntries.Where(f => f.ScanId == id).ExecuteDeleteAsync(CancellationToken.None);
-            await db.DirectoryPaths.Where(d => d.ScanId == id).ExecuteDeleteAsync(CancellationToken.None);
+            await db.FileEntries.Where(f => f.ScanSeq == scan.SeqId).ExecuteDeleteAsync(CancellationToken.None);
+            await db.DirectoryPaths.Where(d => d.ScanSeq == scan.SeqId).ExecuteDeleteAsync(CancellationToken.None);
+            await db.Scans.Where(s => s.SeqId == scan.SeqId).ExecuteDeleteAsync(CancellationToken.None);
             System.IO.File.Delete(blobPath);
             throw;
         }

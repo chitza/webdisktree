@@ -7,7 +7,10 @@ namespace WebDiskTree.Infrastructure.Data.Entities;
 public class FileEntryEntity
 {
     public long Id { get; set; }
-    public required Guid ScanId { get; set; }
+
+    /// <summary>References <see cref="ScanEntity.SeqId"/>, not <see cref="ScanEntity.Id"/> — see that
+    /// property's doc comment for why.</summary>
+    public required int ScanSeq { get; set; }
 
     /// <summary>References <see cref="DirectoryPathEntity.Id"/> instead of repeating the parent path string on
     /// every file row — a directory with N files previously stored (and indexed) that path text N times.</summary>

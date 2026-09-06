@@ -51,7 +51,8 @@ public class ScanPinTests : IDisposable
         {
             var scan = new ScanEntity { Id = Guid.NewGuid(), RootPath = "/", Status = ScanStatus.Completed, IsPinned = true, BlobPath = blob };
             db.Scans.Add(scan);
-            db.DirectoryPaths.Add(new() { ScanId = scan.Id, Path = "/" });
+            await db.SaveChangesAsync();
+            db.DirectoryPaths.Add(new() { ScanSeq = scan.SeqId, Path = "/" });
             await db.SaveChangesAsync();
             Assert.IsType<ConflictObjectResult>(await controller.DeleteScan(scan.Id, default));
             Assert.True(File.Exists(blob));
