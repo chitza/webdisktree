@@ -1,5 +1,4 @@
 import { Component, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,6 +7,7 @@ import { ScanService } from '../../core/services/scan.service';
 import { ScanStatus, ScanSummary, ScanTrigger } from '../../core/models/scan.model';
 import { FormatBytesPipe } from '../../shared/format-bytes.pipe';
 import { FormatCountPipe } from '../../shared/format-count.pipe';
+import { LocalDatePipe } from "../../shared/local-date.pipe";
 
 @Component({
   selector: 'app-scan-history',
@@ -18,8 +18,8 @@ import { FormatCountPipe } from '../../shared/format-count.pipe';
     MatIconModule,
     FormatBytesPipe,
     FormatCountPipe,
-    DatePipe,
-  ],
+    LocalDatePipe
+],
   templateUrl: './scan-history.html',
   styleUrl: './scan-history.scss',
 })

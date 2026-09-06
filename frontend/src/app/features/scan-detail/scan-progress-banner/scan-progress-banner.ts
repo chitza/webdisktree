@@ -5,10 +5,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { ScanProgressEvent, ScanProgressService } from '../../../core/services/scan-progress.service';
 import { ScanStatus, ScanSummary } from '../../../core/models/scan.model';
 import { FormatBytesPipe } from '../../../shared/format-bytes.pipe';
+import { FormatCountPipe } from '../../../shared/format-count.pipe';
 
 @Component({
   selector: 'app-scan-progress-banner',
-  imports: [MatProgressBarModule, MatIconModule, FormatBytesPipe],
+  imports: [
+    MatProgressBarModule,
+    MatIconModule,
+    FormatBytesPipe,
+    FormatCountPipe,
+  ],
   templateUrl: './scan-progress-banner.html',
   styleUrl: './scan-progress-banner.scss',
 })
@@ -17,6 +23,7 @@ export class ScanProgressBanner implements OnChanges {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly scan = input.required<ScanSummary>();
+  readonly freedBytes = input(0);
   readonly refresh = output<void>();
   readonly rescan = output<void>();
 

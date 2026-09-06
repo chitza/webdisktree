@@ -35,6 +35,7 @@
   // Rendered as outlined pills (1px border + label in the status colour, transparent fill), so
   // each value must clear AA as *text* on its own ground — hence a separate light-theme ramp.
   --wdt-status-completed: #{light-dark(#15803d, #4ade80)};
+  --wdt-status-info: #{light-dark(#0369a1, #38bdf8)};
   --wdt-status-running: #{light-dark(#0369a1, #38bdf8)};
   --wdt-status-failed: #{light-dark(#b91c1c, #f87171)};
   --wdt-status-cancelled: #{light-dark(#475569, #94a3b8)};

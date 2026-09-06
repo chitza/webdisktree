@@ -1,5 +1,4 @@
 import { Component, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -14,12 +13,12 @@ import { ScheduleService } from '../../core/services/schedule.service';
 import { ScanService } from '../../core/services/scan.service';
 import { Schedule } from '../../core/models/schedule.model';
 import { AllowedRoot } from '../../core/models/scan.model';
+import { LocalDatePipe } from "../../shared/local-date.pipe";
 
 @Component({
   selector: 'app-schedules',
   imports: [
     FormsModule,
-    DatePipe,
     MatCardModule,
     MatFormFieldModule,
     MatSelectModule,
@@ -28,7 +27,8 @@ import { AllowedRoot } from '../../core/models/scan.model';
     MatButtonModule,
     MatIconModule,
     MatTableModule,
-  ],
+    LocalDatePipe
+],
   templateUrl: './schedules.html',
   styleUrl: './schedules.scss',
 })

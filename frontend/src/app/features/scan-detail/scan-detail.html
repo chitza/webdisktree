@@ -1,7 +1,7 @@
 @if (scan(); as s) {
   <div class="header">
-    <div>
-      <h1>{{ s.rootPath }}</h1>
+    <div class="scan-summary">
+      <h1 [title]="s.rootPath">{{ s.rootPath }}</h1>
       <span class="subtitle">
         {{ s.totalBytes | formatBytes }} · {{ s.totalFiles | formatCount }} files ·
         {{ s.totalDirs | formatCount }} folders
@@ -16,7 +16,7 @@
   @if (s.trigger === ScanTrigger.Imported) {
     <p>Imported scan · read-only snapshot@if (s.isStale) { · stale at export time}</p>
   } @else {
-    <app-scan-progress-banner [scan]="s" (refresh)="onRefresh()" (rescan)="onRescan()" />
+    <app-scan-progress-banner [scan]="s" [freedBytes]="freedBytes()" (refresh)="onRefresh()" (rescan)="onRescan()" />
   }
 
   @if (s.status === ScanStatus.Completed && breadcrumb().length > 0) {
@@ -49,7 +49,7 @@
           />
         </as-split-area>
 
-        <as-split-area size="65" class="detail-split-area">
+        <as-split-area size="55" class="detail-split-area">
           <div class="viz-panel">
             <mat-button-toggle-group
               class="view-switcher"
