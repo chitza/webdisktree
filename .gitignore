@@ -18,5 +18,4 @@ npm-debug.log*
 
 # Editors / OS
 .vs/
-.vscode/
 .DS_Store
