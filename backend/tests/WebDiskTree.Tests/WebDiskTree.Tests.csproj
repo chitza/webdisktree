@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\WebDiskTree.Api\WebDiskTree.Api.csproj" />
     <ProjectReference Include="..\..\src\WebDiskTree.Core\WebDiskTree.Core.csproj" />
     <ProjectReference Include="..\..\src\WebDiskTree.Infrastructure\WebDiskTree.Infrastructure.csproj" />
   </ItemGroup>

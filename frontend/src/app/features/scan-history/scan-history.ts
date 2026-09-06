@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,6 +26,11 @@ import { FormatCountPipe } from '../../shared/format-count.pipe';
 export class ScanHistory {
   private readonly scanService = inject(ScanService);
 
+  private readonly router = inject(Router);
+
+  readonly importing = signal(false);
+  readonly transferError = signal('');
+
   readonly ScanStatus = ScanStatus;
   readonly ScanTrigger = ScanTrigger;
   readonly displayedColumns = ['rootPath', 'trigger', 'status', 'startedAt', 'totalBytes', 'totalFiles', 'actions'];
@@ -44,6 +49,29 @@ export class ScanHistory {
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
+    });
+  }
+
+  importScan(input: HTMLInputElement): void {
+    const file = input.files?.[0];
+    if (!file) return;
+    input.value = '';
+    this.transferError.set('');
+    if (file.size > 100 * 1024 * 1024) {
+      this.transferError.set('Scan exports must be 100 MiB or smaller.');
+      return;
+    }
+    this.importing.set(true);
+    this.scanService.importScan(file).subscribe({
+      next: (scan) => {
+        this.importing.set(false);
+        this.router.navigate(['/scans', scan.id]);
+      },
+      error: (error) => {
+        this.importing.set(false);
+        this.transferError.set(typeof error.error === 'string'
+          ? error.error : 'Import failed. Choose a valid WebDiskTree .tar.gz export and try again.');
+      },
     });
   }
 

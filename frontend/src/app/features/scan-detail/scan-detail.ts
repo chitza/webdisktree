@@ -6,7 +6,7 @@ import { SplitAreaComponent, SplitComponent } from 'angular-split';
 import { ScanService } from '../../core/services/scan.service';
 import { FileService } from '../../core/services/file.service';
 import { DirectoryNode, FileEntry } from '../../core/models/directory-node.model';
-import { ScanStatus, ScanSummary } from '../../core/models/scan.model';
+import { ScanStatus, ScanSummary, ScanTrigger } from '../../core/models/scan.model';
 import { Treemap } from './treemap/treemap';
 import { StretchedTreemap } from './stretched-treemap/stretched-treemap';
 import { Sunburst } from './sunburst/sunburst';
@@ -45,6 +45,7 @@ export class ScanDetail {
   private readonly fileService = inject(FileService);
 
   readonly ScanStatus = ScanStatus;
+  readonly ScanTrigger = ScanTrigger;
   readonly scan = signal<ScanSummary | null>(null);
   readonly breadcrumb = signal<DirectoryNode[]>([]);
   readonly loadingTree = signal(false);
@@ -66,7 +67,8 @@ export class ScanDetail {
   private loadScan(id: string): void {
     this.scanService.getScan(id).subscribe((scan) => {
       this.scan.set(scan);
-      this.checkDeletePermission(scan.rootPath);
+      this.canDelete.set(false);
+      if (scan.trigger !== ScanTrigger.Imported) this.checkDeletePermission(scan.rootPath);
       if (scan.status === ScanStatus.Completed) {
         this.loadTree(id);
       }

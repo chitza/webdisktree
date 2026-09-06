@@ -13,7 +13,11 @@
     <a class="back-link" routerLink="/scans"><mat-icon>arrow_back</mat-icon> Back to history</a>
   </div>
 
-  <app-scan-progress-banner [scan]="s" (refresh)="onRefresh()" (rescan)="onRescan()" />
+  @if (s.trigger === ScanTrigger.Imported) {
+    <p>Imported scan · read-only snapshot@if (s.isStale) { · stale at export time}</p>
+  } @else {
+    <app-scan-progress-banner [scan]="s" (refresh)="onRefresh()" (rescan)="onRescan()" />
+  }
 
   @if (s.status === ScanStatus.Completed && breadcrumb().length > 0) {
     <nav class="breadcrumb">

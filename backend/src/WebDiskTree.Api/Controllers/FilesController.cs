@@ -118,6 +118,11 @@ public class FilesController(
             return NotFound("Scan not found.");
         }
 
+        if (scan.Trigger == ScanTrigger.Imported)
+        {
+            return Conflict("Imported scans are read-only.");
+        }
+
         var deleted = new List<string>();
         var failed = new List<DeleteFailureDto>();
 
