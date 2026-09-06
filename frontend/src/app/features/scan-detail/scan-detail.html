@@ -1,7 +1,7 @@
 @if (scan(); as s) {
   <div class="header">
-    <div>
-      <h1>{{ s.rootPath }}</h1>
+    <div class="scan-summary">
+      <h1 [title]="s.rootPath">{{ s.rootPath }}</h1>
       <span class="subtitle">
         {{ s.totalBytes | formatBytes }} · {{ s.totalFiles | formatCount }} files ·
         {{ s.totalDirs | formatCount }} folders
