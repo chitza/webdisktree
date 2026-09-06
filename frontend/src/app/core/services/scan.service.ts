@@ -23,6 +23,12 @@ export class ScanService {
     return this.http.post<ScanSummary>('/api/scans', { rootPath });
   }
 
+  importScan(file: File): Observable<ScanSummary> {
+    return this.http.post<ScanSummary>('/api/scans/import', file, {
+      headers: { 'Content-Type': file.name.toLowerCase().endsWith('.json') ? 'application/json' : 'application/gzip' },
+    });
+  }
+
   cancelScan(id: string): Observable<void> {
     return this.http.post<void>(`/api/scans/${id}/cancel`, {});
   }

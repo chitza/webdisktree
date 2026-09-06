@@ -10,6 +10,7 @@ A self-hosted, web-based disk usage visualizer — like WizTree or TreeMap-Disk-
 - File-type size breakdown
 - Delete files/folders from the UI (with path-safety validation)
 - Scan history — revisit past scans, not just the latest
+- Export completed scans as tar.gz archives and import them as read-only snapshots
 - Scheduled scans (cron expressions) for specific paths
 
 ## Repo layout
@@ -85,3 +86,17 @@ Open http://localhost:4200. In development, `appsettings.Development.json` point
 cd backend
 dotnet test
 ```
+
+### Exporting and importing scans
+
+In **Scan history**, use the download action on a completed scan to export a
+WebDiskTree `.tar.gz` archive containing `scan.json`. Download names include the
+sanitized scan path and original scan date in UTC, for example
+`webdisktree-hostfs-home-2026-09-06_06-24-07Z.tar.gz`.
+Use **Import scan** to restore an export (up to 100 MiB compressed and 1 GiB for
+`scan.json`). Legacy JSON exports can also be imported.
+Imports receive a new ID and appear in history with an Imported trigger; the
+original scan dates, totals, tree, full file listings, and stale status are preserved.
+Imported scans are read-only and do not require the original filesystem to be mounted.
+The file contains paths and metadata, not file contents. Only WebDiskTree version 1
+exports are supported.

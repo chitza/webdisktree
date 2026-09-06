@@ -6,7 +6,17 @@ namespace WebDiskTree.Infrastructure.Compression;
 
 public class TreeBlobSerializer
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    // Each directory adds an object and a children array to the JSON depth.
+    // Reserve one extra level in archives for the envelope surrounding the tree.
+    public const int MaxTreeJsonDepth = 1024;
+    public static JsonSerializerOptions ArchiveJsonOptions { get; } = new(JsonSerializerDefaults.Web)
+    {
+        MaxDepth = MaxTreeJsonDepth + 1,
+    };
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        MaxDepth = MaxTreeJsonDepth,
+    };
 
     public async Task WriteAsync(string blobPath, DirectoryNode root, CancellationToken cancellationToken)
     {

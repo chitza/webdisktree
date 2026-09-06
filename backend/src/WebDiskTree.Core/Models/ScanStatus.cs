@@ -13,4 +13,5 @@ public enum ScanTrigger
 {
     Manual,
     Scheduled,
+    Imported,
 }

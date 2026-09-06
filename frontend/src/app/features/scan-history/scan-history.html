@@ -1,5 +1,13 @@
 <h1>Scan history</h1>
 
+<input #importFile type="file" accept=".tar.gz,.tgz,.json,application/gzip,application/json" hidden (change)="importScan(importFile)" />
+<button mat-stroked-button (click)="importFile.click()" [disabled]="importing()">
+  <mat-icon>upload</mat-icon> {{ importing() ? 'Importing…' : 'Import scan' }}
+</button>
+@if (transferError()) {
+  <p role="alert">{{ transferError() }}</p>
+}
+
 @if (loading()) {
   <p>Loading…</p>
 } @else if (scans().length === 0) {
@@ -46,6 +54,13 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let scan">
+        @if (scan.status === ScanStatus.Completed) {
+          <a mat-icon-button [href]="'/api/scans/' + scan.id + '/export'"
+            download (click)="$event.stopPropagation()"
+            aria-label="Export scan" title="Export scan">
+            <mat-icon>download</mat-icon>
+          </a>
+        }
         @if (isCancellable(scan)) {
           <button mat-icon-button (click)="cancel(scan, $event)" aria-label="Cancel scan">
             <mat-icon>cancel</mat-icon>

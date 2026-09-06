@@ -1,6 +1,7 @@
 export enum ScanTrigger {
   Manual = 0,
   Scheduled = 1,
+  Imported = 2,
 }
 
 export enum ScanStatus {
