@@ -4,6 +4,11 @@
     Up
   </button>
 
+  <button type="button" class="imdb-lookup-button" (click)="findImdbLinks()" [disabled]="imdbLookupPending()">
+    <mat-icon>movie</mat-icon>
+    Find IMDB links
+  </button>
+
   @if (canDelete() && selection.selected.length > 0) {
     <button type="button" class="delete-button" (click)="deleteSelected()">
       <mat-icon>delete</mat-icon>
@@ -14,6 +19,10 @@
 
 @if (error()) {
   <p class="error">{{ error() }}</p>
+}
+
+@if (imdbLookupMessage()) {
+  <p class="imdb-message">{{ imdbLookupMessage() }}</p>
 }
 
 <div class="table-scroll">
@@ -53,9 +62,17 @@
       <span class="name-cell">
         <mat-icon inline>{{ row.isDirectory ? 'folder' : 'description' }}</mat-icon>
         <span class="name-text" [title]="row.name">{{ row.name }}</span>
-        @if (row.isDirectory) {
-          <mat-icon inline class="drill-chevron">chevron_right</mat-icon>
+        @if (row.imdbUrl) {
+          <a class="imdb-link" [href]="row.imdbUrl" target="_blank" rel="noopener"
+            (click)="$event.stopPropagation()"
+            [attr.aria-label]="'View ' + (row.parsedTitle ?? row.name) + ' on IMDB'"
+            title="View on IMDB">
+            <mat-icon inline>movie</mat-icon>
+          </a>
+        } @else if (row.imdbStatus === ImdbLookupStatus.Pending) {
+          <mat-icon inline class="imdb-pending" title="Looking up on IMDB…">hourglass_top</mat-icon>
         }
+        <mat-icon inline class="drill-chevron" [class.drill-chevron-hidden]="!row.isDirectory">chevron_right</mat-icon>
       </span>
     </td>
   </ng-container>

@@ -9,6 +9,7 @@ public class WebDiskTreeDbContext(DbContextOptions<WebDiskTreeDbContext> options
     public DbSet<ScheduleEntity> Schedules => Set<ScheduleEntity>();
     public DbSet<FileEntryEntity> FileEntries => Set<FileEntryEntity>();
     public DbSet<DirectoryPathEntity> DirectoryPaths => Set<DirectoryPathEntity>();
+    public DbSet<ImdbLookupCacheEntity> ImdbLookupCache => Set<ImdbLookupCacheEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -42,6 +43,12 @@ public class WebDiskTreeDbContext(DbContextOptions<WebDiskTreeDbContext> options
             b.HasIndex(f => new { f.ScanId, f.Extension });
             // No index on SizeBytes: nothing queries FileEntries by size alone (GetFiles sorts an
             // already-ParentDirectoryId-filtered result in memory), so it was pure dead weight.
+        });
+
+        modelBuilder.Entity<ImdbLookupCacheEntity>(b =>
+        {
+            b.HasKey(c => c.Id);
+            b.HasIndex(c => c.CacheKey).IsUnique();
         });
     }
 }

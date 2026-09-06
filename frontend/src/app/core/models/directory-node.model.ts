@@ -1,3 +1,10 @@
+export enum ImdbLookupStatus {
+  Pending = 0,
+  Found = 1,
+  NotFound = 2,
+  Failed = 3,
+}
+
 export interface FileEntry {
   name: string;
   extension: string | null;
@@ -5,6 +12,9 @@ export interface FileEntry {
   modifiedUtc: string;
   isDirectory: boolean;
   isSymlink?: boolean;
+  parsedTitle?: string | null;
+  imdbUrl?: string | null;
+  imdbStatus?: ImdbLookupStatus | null;
 }
 
 export interface DirectoryNode {
