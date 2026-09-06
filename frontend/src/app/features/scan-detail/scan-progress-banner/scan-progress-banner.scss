@@ -47,18 +47,31 @@
 
   .banner-text {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
     gap: 12px;
     margin-top: 6px;
     color: var(--wdt-ink);
 
     .detail {
       @include tokens.mono;
+      display: grid;
+      grid-template-columns: 44ch minmax(0, 1fr);
+      flex: 1 1 44ch;
+      min-width: 0;
+      gap: 12px;
       color: var(--wdt-muted);
+    }
+
+    .counters {
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .current-path {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      max-width: 70%;
+      min-width: 0;
     }
   }
 }
@@ -73,4 +86,15 @@
   color: var(--wdt-status-stale);
   border-color: color-mix(in srgb, var(--wdt-status-stale) 45%, transparent);
   background: color-mix(in srgb, var(--wdt-status-stale) 10%, transparent);
+}
+
+@media (max-width: 600px) {
+  .banner-running .banner-text .detail {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .banner-running .banner-text .counters {
+    white-space: normal;
+  }
 }

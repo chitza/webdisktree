@@ -5,7 +5,11 @@
       <span>Scanning…</span>
       @if (progress(); as p) {
         <span class="detail">
-          {{ p.filesScanned }} files, {{ p.dirsScanned }} dirs, {{ p.bytesScanned | formatBytes }} — {{ p.currentPath }}
+          <span class="counters">
+            {{ p.filesScanned | formatCount }} files, {{ p.dirsScanned | formatCount }} dirs,
+            {{ p.bytesScanned | formatBytes }}
+          </span>
+          <span class="current-path" [title]="p.currentPath">{{ p.currentPath }}</span>
         </span>
       }
     </div>
