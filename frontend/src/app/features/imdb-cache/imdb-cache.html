@@ -1,0 +1,34 @@
+<h1>IMDB lookup cache</h1>
+
+<mat-card class="cache-card">
+  <mat-card-header>
+    <mat-card-title>Backup &amp; restore</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p class="count">{{ count() | formatCount }} cached lookups</p>
+    <p class="hint">
+      Export moves the cache's title/year → IMDB id lookups to another WebDiskTree instance so it doesn't have
+      to re-query IMDB for titles you've already resolved here. Import merges a backup into this cache by
+      matching key — entries already here that aren't in the backup are left alone.
+    </p>
+  </mat-card-content>
+
+  @if (transferError()) {
+    <p class="error">{{ transferError() }}</p>
+  }
+  @if (lastImportResult(); as result) {
+    <p class="import-result">Imported: {{ result.added }} added, {{ result.updated }} updated.</p>
+  }
+
+  <mat-card-actions>
+    <a mat-stroked-button href="/api/imdb-lookup-cache/export" download>
+      <mat-icon>download</mat-icon> Export cache
+    </a>
+
+    <input #importFile type="file" accept=".tar.gz,.tgz,.json,application/gzip,application/json" hidden
+      (change)="importCache(importFile)" />
+    <button mat-stroked-button (click)="importFile.click()" [disabled]="importing()">
+      <mat-icon>upload</mat-icon> {{ importing() ? 'Importing…' : 'Import cache' }}
+    </button>
+  </mat-card-actions>
+</mat-card>
