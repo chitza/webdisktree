@@ -124,8 +124,8 @@ public class ScansController(
             return Conflict("This scan is pinned. Confirm deletion of the pinned scan.");
         }
 
-        await dbContext.FileEntries.Where(f => f.ScanId == id).ExecuteDeleteAsync(cancellationToken);
-        await dbContext.DirectoryPaths.Where(d => d.ScanId == id).ExecuteDeleteAsync(cancellationToken);
+        await dbContext.FileEntries.Where(f => f.ScanSeq == scan.SeqId).ExecuteDeleteAsync(cancellationToken);
+        await dbContext.DirectoryPaths.Where(d => d.ScanSeq == scan.SeqId).ExecuteDeleteAsync(cancellationToken);
 
         if (scan.BlobPath is not null && System.IO.File.Exists(scan.BlobPath))
         {
@@ -134,6 +134,10 @@ public class ScansController(
 
         dbContext.Scans.Remove(scan);
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        // Reclaims the pages just freed above. Cheap — proportional to what this delete freed, not the whole
+        // file — because the database runs incremental (not full) auto-vacuum; a no-op if it doesn't.
+        await dbContext.Database.ExecuteSqlRawAsync("PRAGMA incremental_vacuum;", cancellationToken);
 
         return NoContent();
     }

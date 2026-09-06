@@ -54,8 +54,9 @@ public class FilesController(
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 500);
 
+        var scanSeq = await ResolveScanSeqAsync(id, cancellationToken);
         var directoryId = await dbContext.DirectoryPaths
-            .Where(d => d.ScanId == id && d.Path == path)
+            .Where(d => d.ScanSeq == scanSeq && d.Path == path)
             .Select(d => (long?)d.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -64,7 +65,7 @@ public class FilesController(
             return Ok(new PagedResult<FileEntryDto>([], page, pageSize, 0));
         }
 
-        var query = dbContext.FileEntries.Where(f => f.ScanId == id && f.ParentDirectoryId == directoryId);
+        var query = dbContext.FileEntries.Where(f => f.ScanSeq == scanSeq && f.ParentDirectoryId == directoryId);
 
         var descending = string.Equals(dir, "desc", StringComparison.OrdinalIgnoreCase);
         query = sort.ToLowerInvariant() switch
@@ -90,8 +91,9 @@ public class FilesController(
     public async Task<ActionResult<TriggerImdbLookupResult>> TriggerImdbLookup(
         Guid id, TriggerImdbLookupRequest request, CancellationToken cancellationToken)
     {
+        var scanSeq = await ResolveScanSeqAsync(id, cancellationToken);
         var directoryId = await dbContext.DirectoryPaths
-            .Where(d => d.ScanId == id && d.Path == request.Path)
+            .Where(d => d.ScanSeq == scanSeq && d.Path == request.Path)
             .Select(d => (long?)d.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -101,7 +103,7 @@ public class FilesController(
         }
 
         var entries = await dbContext.FileEntries
-            .Where(f => f.ScanId == id && f.ParentDirectoryId == directoryId)
+            .Where(f => f.ScanSeq == scanSeq && f.ParentDirectoryId == directoryId)
             .Select(f => new { f.Name, f.IsDirectory })
             .ToListAsync(cancellationToken);
 
@@ -186,8 +188,9 @@ public class FilesController(
     public async Task<ActionResult<IReadOnlyList<TypeBreakdownEntryDto>>> GetBreakdown(
         Guid id, [FromQuery] int top = 15, CancellationToken cancellationToken = default)
     {
+        var scanSeq = await ResolveScanSeqAsync(id, cancellationToken);
         var raw = await dbContext.FileEntries
-            .Where(f => f.ScanId == id && !f.IsDirectory)
+            .Where(f => f.ScanSeq == scanSeq && !f.IsDirectory)
             .GroupBy(f => f.Extension)
             .Select(g => new { Extension = g.Key, TotalSizeBytes = g.Sum(f => f.SizeBytes), FileCount = g.LongCount() })
             .ToListAsync(cancellationToken);
@@ -245,7 +248,7 @@ public class FilesController(
                     System.IO.File.Delete(canonicalPath);
                 }
 
-                await bulkWriter.DeleteTreeAsync(request.ScanId, canonicalPath, isDirectory, cancellationToken);
+                await bulkWriter.DeleteTreeAsync(scan.SeqId, canonicalPath, isDirectory, cancellationToken);
                 deleted.Add(canonicalPath);
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
@@ -262,6 +265,12 @@ public class FilesController(
 
         return Ok(new DeleteFilesResult(deleted, failed));
     }
+
+    // Public endpoints identify scans by Guid; storage keys FileEntries/DirectoryPaths off the much smaller
+    // SeqId instead (see ScanEntity.SeqId). A nonexistent scan resolves to 0, which never matches a real row,
+    // so callers naturally see empty results without needing a separate not-found branch here.
+    private async Task<int> ResolveScanSeqAsync(Guid id, CancellationToken cancellationToken) =>
+        await dbContext.Scans.Where(s => s.Id == id).Select(s => s.SeqId).FirstOrDefaultAsync(cancellationToken);
 
     private async Task<List<FileEntryDto>> AttachImdbInfoAsync(List<FileEntryEntity> rows, CancellationToken cancellationToken)
     {

@@ -69,7 +69,7 @@ public class ScanBackgroundService(
 
             var blobPath = Path.Combine(storageOptions.Value.BlobDirectory, $"{request.ScanId}.json.gz");
             await blobSerializer.WriteAsync(blobPath, result.Root, linkedCts.Token);
-            await bulkWriter.WriteAsync(request.ScanId, result.FlatRows, linkedCts.Token);
+            await bulkWriter.WriteAsync(scanEntity.SeqId, result.FlatRows, linkedCts.Token);
 
             scanEntity.Status = ScanStatus.Completed;
             scanEntity.CompletedAt = DateTimeOffset.UtcNow;

@@ -16,18 +16,13 @@ public class FileEntryBulkWriter(WebDiskTreeDbContext dbContext)
     // lands. Batching gives SQLite a checkpoint opportunity every ~50k rows instead of once at the very end.
     private const int BatchSize = 50_000;
 
-    public async Task WriteAsync(Guid scanId, IEnumerable<FlatFileRow> rows, CancellationToken cancellationToken)
+    public async Task WriteAsync(int scanSeq, IEnumerable<FlatFileRow> rows, CancellationToken cancellationToken)
     {
         var connection = (SqliteConnection)dbContext.Database.GetDbConnection();
         if (connection.State != System.Data.ConnectionState.Open)
         {
             await connection.OpenAsync(cancellationToken);
         }
-
-        // EF Core's default Sqlite Guid-to-TEXT conversion stores uppercase "D"-format strings; matching that
-        // here is required so EF-side WHERE ScanId == @guid queries (case-sensitive TEXT comparison) find these
-        // raw-inserted rows.
-        var scanIdText = scanId.ToString("D").ToUpperInvariant();
 
         // Interns each distinct parent path once per scan (a directory with 1,000 files hits this once, not
         // 1,000 times) instead of writing/indexing the full path string on every file row. Persists across
@@ -40,9 +35,9 @@ public class FileEntryBulkWriter(WebDiskTreeDbContext dbContext)
         while (hasNext)
         {
             using var transaction = connection.BeginTransaction();
-            using var insertDirCommand = CreateInsertDirectoryCommand(connection, transaction, scanIdText);
+            using var insertDirCommand = CreateInsertDirectoryCommand(connection, transaction, scanSeq);
             using var lastRowIdCommand = CreateLastRowIdCommand(connection, transaction);
-            using var insertFileCommand = CreateInsertFileCommand(connection, transaction, scanIdText, out var fileParams);
+            using var insertFileCommand = CreateInsertFileCommand(connection, transaction, scanSeq, out var fileParams);
 
             var insertDirPathParam = insertDirCommand.Parameters["$path"];
 
@@ -74,12 +69,12 @@ public class FileEntryBulkWriter(WebDiskTreeDbContext dbContext)
         }
     }
 
-    private static SqliteCommand CreateInsertDirectoryCommand(SqliteConnection connection, SqliteTransaction transaction, string scanIdText)
+    private static SqliteCommand CreateInsertDirectoryCommand(SqliteConnection connection, SqliteTransaction transaction, int scanSeq)
     {
         var command = connection.CreateCommand();
         command.Transaction = transaction;
-        command.CommandText = "INSERT INTO DirectoryPaths (ScanId, Path) VALUES ($scanId, $path);";
-        command.Parameters.AddWithValue("$scanId", scanIdText);
+        command.CommandText = "INSERT INTO DirectoryPaths (ScanSeq, Path) VALUES ($scanSeq, $path);";
+        command.Parameters.AddWithValue("$scanSeq", scanSeq);
         command.Parameters.Add("$path", SqliteType.Text);
         command.Prepare();
         return command;
@@ -95,16 +90,16 @@ public class FileEntryBulkWriter(WebDiskTreeDbContext dbContext)
     }
 
     private static SqliteCommand CreateInsertFileCommand(
-        SqliteConnection connection, SqliteTransaction transaction, string scanIdText, out FileInsertParameters fileParams)
+        SqliteConnection connection, SqliteTransaction transaction, int scanSeq, out FileInsertParameters fileParams)
     {
         var command = connection.CreateCommand();
         command.Transaction = transaction;
         command.CommandText =
             """
-            INSERT INTO FileEntries (ScanId, ParentDirectoryId, Name, Extension, SizeBytes, ModifiedUtc, IsDirectory)
-            VALUES ($scanId, $parentDirectoryId, $name, $extension, $sizeBytes, $modifiedUtc, $isDirectory);
+            INSERT INTO FileEntries (ScanSeq, ParentDirectoryId, Name, Extension, SizeBytes, ModifiedUtc, IsDirectory)
+            VALUES ($scanSeq, $parentDirectoryId, $name, $extension, $sizeBytes, $modifiedUtc, $isDirectory);
             """;
-        command.Parameters.AddWithValue("$scanId", scanIdText);
+        command.Parameters.AddWithValue("$scanSeq", scanSeq);
 
         var parentDirectoryId = command.Parameters.Add("$parentDirectoryId", SqliteType.Integer);
         var name = command.Parameters.Add("$name", SqliteType.Text);
@@ -128,20 +123,20 @@ public class FileEntryBulkWriter(WebDiskTreeDbContext dbContext)
 
     /// <summary>Removes the row for <paramref name="canonicalPath"/> itself, plus (if it was a directory) every
     /// descendant row, so the list view/breakdown reflect the deletion immediately without waiting for a rescan.</summary>
-    public async Task DeleteTreeAsync(Guid scanId, string canonicalPath, bool isDirectory, CancellationToken cancellationToken)
+    public async Task DeleteTreeAsync(int scanSeq, string canonicalPath, bool isDirectory, CancellationToken cancellationToken)
     {
         var parentPath = Path.GetDirectoryName(canonicalPath) ?? string.Empty;
         var name = Path.GetFileName(canonicalPath);
 
         var parentDirectoryId = await dbContext.DirectoryPaths
-            .Where(d => d.ScanId == scanId && d.Path == parentPath)
+            .Where(d => d.ScanSeq == scanSeq && d.Path == parentPath)
             .Select(d => (long?)d.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (parentDirectoryId is not null)
         {
             await dbContext.FileEntries
-                .Where(f => f.ScanId == scanId && f.ParentDirectoryId == parentDirectoryId && f.Name == name)
+                .Where(f => f.ScanSeq == scanSeq && f.ParentDirectoryId == parentDirectoryId && f.Name == name)
                 .ExecuteDeleteAsync(cancellationToken);
         }
 
@@ -151,14 +146,14 @@ public class FileEntryBulkWriter(WebDiskTreeDbContext dbContext)
             // file), so this prefix scan is cheap even though it can no longer use an equality index lookup.
             var descendantPrefix = canonicalPath + "/";
             var descendantDirectoryIds = await dbContext.DirectoryPaths
-                .Where(d => d.ScanId == scanId && (d.Path == canonicalPath || d.Path.StartsWith(descendantPrefix)))
+                .Where(d => d.ScanSeq == scanSeq && (d.Path == canonicalPath || d.Path.StartsWith(descendantPrefix)))
                 .Select(d => d.Id)
                 .ToListAsync(cancellationToken);
 
             if (descendantDirectoryIds.Count > 0)
             {
                 await dbContext.FileEntries
-                    .Where(f => f.ScanId == scanId && descendantDirectoryIds.Contains(f.ParentDirectoryId))
+                    .Where(f => f.ScanSeq == scanSeq && descendantDirectoryIds.Contains(f.ParentDirectoryId))
                     .ExecuteDeleteAsync(cancellationToken);
 
                 await dbContext.DirectoryPaths

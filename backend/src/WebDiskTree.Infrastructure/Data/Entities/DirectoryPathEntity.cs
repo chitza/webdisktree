@@ -8,6 +8,9 @@ namespace WebDiskTree.Infrastructure.Data.Entities;
 public class DirectoryPathEntity
 {
     public long Id { get; set; }
-    public required Guid ScanId { get; set; }
+
+    /// <summary>References <see cref="ScanEntity.SeqId"/>, not <see cref="ScanEntity.Id"/> — see that
+    /// property's doc comment for why.</summary>
+    public required int ScanSeq { get; set; }
     public required string Path { get; set; }
 }
