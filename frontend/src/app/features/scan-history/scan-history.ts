@@ -3,6 +3,8 @@ import { Router, RouterLink } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
+import { DeleteScanDialog } from './delete-scan-dialog';
 import { ScanService } from '../../core/services/scan.service';
 import { ScanStatus, ScanSummary, ScanTrigger } from '../../core/models/scan.model';
 import { FormatBytesPipe } from '../../shared/format-bytes.pipe';
@@ -25,6 +27,9 @@ import { LocalDatePipe } from "../../shared/local-date.pipe";
 })
 export class ScanHistory {
   private readonly scanService = inject(ScanService);
+  private readonly dialog = inject(MatDialog);
+  readonly actionError = signal('');
+  readonly pinning = signal<string[]>([]);
 
   private readonly router = inject(Router);
 
@@ -81,13 +86,42 @@ export class ScanHistory {
     this.scanService.cancelScan(scan.id).subscribe(() => this.load());
   }
 
+  togglePin(scan: ScanSummary, event: Event): void {
+    event.stopPropagation();
+    event.preventDefault();
+    this.actionError.set('');
+    this.pinning.update(ids => [...ids, scan.id]);
+    this.scanService.setPinned(scan.id, !scan.isPinned).subscribe({
+      next: updated => {
+        this.scans.update(scans => scans.map(s => s.id === updated.id ? updated : s));
+        this.pinning.update(ids => ids.filter(id => id !== scan.id));
+      },
+      error: () => {
+        this.pinning.update(ids => ids.filter(id => id !== scan.id));
+        this.actionError.set('Could not update the scan pin. Please try again.');
+      },
+    });
+  }
+
   remove(scan: ScanSummary, event: Event): void {
     event.stopPropagation();
     event.preventDefault();
-    if (!confirm(`Delete the scan of "${scan.rootPath}"? This cannot be undone.`)) {
-      return;
-    }
-    this.scanService.deleteScan(scan.id).subscribe(() => this.load());
+    this.dialog.open(DeleteScanDialog, {
+      data: { rootPath: scan.rootPath, isPinned: scan.isPinned },
+      width: '480px',
+      autoFocus: 'first-tabbable',
+    }).afterClosed().subscribe(confirmed => {
+      if (confirmed !== true) return;
+      this.actionError.set('');
+      this.scanService.deleteScan(scan.id, scan.isPinned).subscribe({
+        next: () => this.load(),
+        error: (error) => {
+          this.actionError.set(typeof error.error === 'string'
+            ? error.error : 'Could not delete the scan. Please try again.');
+          this.load();
+        },
+      });
+    });
   }
 
   isCancellable(scan: ScanSummary): boolean {

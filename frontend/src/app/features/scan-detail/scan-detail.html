@@ -10,8 +10,17 @@
         }
       </span>
     </div>
+    <button type="button" class="pin-button" (click)="togglePin()"
+      [disabled]="pinning()" [attr.aria-pressed]="s.isPinned">
+      <mat-icon>{{ s.isPinned ? 'push_pin' : 'outlined_flag' }}</mat-icon>
+      {{ s.isPinned ? 'Unpin' : 'Pin' }}
+    </button>
     <a class="back-link" routerLink="/scans"><mat-icon>arrow_back</mat-icon> Back to history</a>
   </div>
+
+  @if (pinError()) {
+    <p role="alert">{{ pinError() }}</p>
+  }
 
   @if (s.trigger === ScanTrigger.Imported) {
     <p>Imported scan · read-only snapshot@if (s.isStale) { · stale at export time}</p>

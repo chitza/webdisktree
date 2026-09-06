@@ -41,7 +41,7 @@ public class ScanArchivesController(
                                file.SizeBytes, file.ModifiedUtc, file.IsDirectory)).ToListAsync(cancellationToken);
         var summary = new ScanSummaryDto(scan.Id, scan.RootPath, scan.Trigger, scan.Status,
             scan.StartedAt, scan.CompletedAt, scan.TotalBytes, scan.TotalFiles, scan.TotalDirs,
-            scan.ErrorCount, scan.IsStale, scan.ErrorMessage);
+            scan.ErrorCount, scan.IsStale, scan.ErrorMessage, scan.IsPinned);
         var package = await ScanArchivePackage.WriteAsync(new ScanArchive(1, summary, tree, files), cancellationToken);
         var pathLabel = Regex.Replace(scan.RootPath, @"[^a-zA-Z0-9._-]+", "-").Trim('-', '.');
         if (pathLabel.Length == 0) pathLabel = "root";
@@ -80,7 +80,7 @@ public class ScanArchivesController(
             Status = ScanStatus.Completed, StartedAt = source.StartedAt, CompletedAt = source.CompletedAt,
             TotalBytes = source.TotalBytes, TotalFiles = source.TotalFiles, TotalDirs = source.TotalDirs,
             ErrorCount = source.ErrorCount, IsStale = source.IsStale, ErrorMessage = source.ErrorMessage,
-            BlobPath = blobPath,
+            BlobPath = blobPath, IsPinned = source.IsPinned,
         };
         try
         {
@@ -100,7 +100,7 @@ public class ScanArchivesController(
 
         return Created($"/api/scans/{id}", new ScanSummaryDto(id, scan.RootPath, scan.Trigger, scan.Status,
             scan.StartedAt, scan.CompletedAt, scan.TotalBytes, scan.TotalFiles, scan.TotalDirs,
-            scan.ErrorCount, scan.IsStale, scan.ErrorMessage));
+            scan.ErrorCount, scan.IsStale, scan.ErrorMessage, scan.IsPinned));
     }
 
     private static bool IsValid(ScanArchive? archive)

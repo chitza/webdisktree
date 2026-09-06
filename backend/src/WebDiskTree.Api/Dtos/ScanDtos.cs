@@ -4,6 +4,8 @@ namespace WebDiskTree.Api.Dtos;
 
 public record CreateScanRequest(string RootPath);
 
+public record SetScanPinnedRequest(bool IsPinned);
+
 public record ScanSummaryDto(
     Guid Id,
     string RootPath,
@@ -16,7 +18,8 @@ public record ScanSummaryDto(
     long TotalDirs,
     int ErrorCount,
     bool IsStale,
-    string? ErrorMessage);
+    string? ErrorMessage,
+    bool IsPinned = false);
 
 public record FileEntryDto(
     string Name,

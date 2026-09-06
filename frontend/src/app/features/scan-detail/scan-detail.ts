@@ -49,6 +49,8 @@ export class ScanDetail {
   readonly scan = signal<ScanSummary | null>(null);
   readonly breadcrumb = signal<DirectoryNode[]>([]);
   readonly loadingTree = signal(false);
+  readonly pinning = signal(false);
+  readonly pinError = signal('');
   readonly canDelete = signal(false);
   readonly viewMode = signal<ViewMode>('treemap');
   readonly freedBytes = signal(0);
@@ -63,6 +65,7 @@ export class ScanDetail {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
+        this.pinError.set('');
         this.freedBytes.set(0);
         this.deletedSizes.clear();
         this.loadScan(id);
@@ -95,6 +98,26 @@ export class ScanDetail {
         this.loadingTree.set(false);
       },
       error: () => this.loadingTree.set(false),
+    });
+  }
+
+  togglePin(): void {
+    const current = this.scan();
+    if (!current || this.pinning()) return;
+    this.pinning.set(true);
+    this.pinError.set('');
+    this.scanService.setPinned(current.id, !current.isPinned).subscribe({
+      next: updated => {
+        this.scan.update(scan => scan?.id === updated.id
+          ? { ...scan, isPinned: updated.isPinned } : scan);
+        this.pinning.set(false);
+      },
+      error: () => {
+        this.pinning.set(false);
+        if (this.scan()?.id === current.id) {
+          this.pinError.set('Could not update the scan pin. Please try again.');
+        }
+      },
     });
   }
 
