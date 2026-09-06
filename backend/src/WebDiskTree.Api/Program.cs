@@ -4,6 +4,7 @@ using WebDiskTree.Api.Hubs;
 using WebDiskTree.Core.Abstractions;
 using WebDiskTree.Infrastructure.Compression;
 using WebDiskTree.Infrastructure.Data;
+using WebDiskTree.Infrastructure.Media;
 using WebDiskTree.Infrastructure.Scanning;
 using WebDiskTree.Infrastructure.Scheduling;
 using WebDiskTree.Infrastructure.Security;
@@ -29,12 +30,15 @@ builder.Services.AddDbContext<WebDiskTreeDbContext>(options =>
 
 builder.Services.Configure<AllowedRootsOptions>(builder.Configuration.GetSection("AllowedRoots"));
 builder.Services.Configure<ScanStorageOptions>(o => o.BlobDirectory = blobDirectory);
+builder.Services.Configure<TmdbOptions>(builder.Configuration.GetSection("Tmdb"));
 
 builder.Services.AddSingleton<ScanQueue>();
 builder.Services.AddSingleton<ScanCancellationRegistry>();
 builder.Services.AddSingleton<IScanEngine, DirectoryScanEngine>();
 builder.Services.AddSingleton<TreeBlobSerializer>();
 builder.Services.AddSingleton<IScanProgressReporter, SignalRScanProgressReporter>();
+builder.Services.AddSingleton<ImdbLookupQueue>();
+builder.Services.AddHttpClient<TmdbClient>();
 
 builder.Services.AddScoped<FileEntryBulkWriter>();
 builder.Services.AddScoped<IPathSafetyValidator, PathSafetyValidator>();
@@ -42,6 +46,7 @@ builder.Services.AddSingleton<AllowedRootsService>();
 
 builder.Services.AddHostedService<ScanBackgroundService>();
 builder.Services.AddHostedService<ScheduleEvaluatorService>();
+builder.Services.AddHostedService<ImdbLookupBackgroundService>();
 
 var app = builder.Build();
 

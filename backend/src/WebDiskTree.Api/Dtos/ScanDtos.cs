@@ -26,7 +26,14 @@ public record FileEntryDto(
     string? Extension,
     long SizeBytes,
     DateTimeOffset ModifiedUtc,
-    bool IsDirectory);
+    bool IsDirectory,
+    string? ParsedTitle = null,
+    string? ImdbUrl = null,
+    ImdbLookupStatus? ImdbStatus = null);
+
+public record TriggerImdbLookupRequest(string Path);
+
+public record TriggerImdbLookupResult(int Queued, int AlreadyCached);
 
 public record PagedResult<T>(IReadOnlyList<T> Items, int Page, int PageSize, long TotalCount);
 

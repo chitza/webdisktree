@@ -14,6 +14,9 @@ services:
       - AllowedRoots__Roots__0__Path=/hostfs
       - AllowedRoots__Roots__0__Label=Whole disk (read-only)
       - AllowedRoots__Roots__0__AllowDelete=false
+      # IMDB lookups are disabled until a TMDb API key is set. Never hardcode the real key here —
+      # set TMDB_API_KEY in the deployment environment (e.g. Portainer's stack env vars) instead.
+      - Tmdb__ApiKey=${TMDB_API_KEY:-}
     restart: unless-stopped
 
 volumes:

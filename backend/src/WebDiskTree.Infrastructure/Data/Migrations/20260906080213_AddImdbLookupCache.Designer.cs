@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebDiskTree.Infrastructure.Data;
 
@@ -10,9 +11,11 @@ using WebDiskTree.Infrastructure.Data;
 namespace WebDiskTree.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(WebDiskTreeDbContext))]
-    partial class WebDiskTreeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260906080213_AddImdbLookupCache")]
+    partial class AddImdbLookupCache
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.11");

@@ -22,7 +22,8 @@
   padding: 0 8px;
   border-bottom: 1px solid var(--wdt-rule);
 
-  .up-button {
+  .up-button,
+  .imdb-lookup-button {
     @include tokens.flat-control;
     display: inline-flex;
     align-items: center;
@@ -75,10 +76,18 @@
   }
 }
 
-.error {
+.error,
+.imdb-message {
   flex: 0 0 auto;
   padding: 0 8px;
+}
+
+.error {
   color: var(--wdt-status-failed);
+}
+
+.imdb-message {
+  color: var(--wdt-muted);
 }
 
 // Only this element scrolls — the paginator below it and the toolbar above stay in place
@@ -173,11 +182,28 @@ mat-paginator {
       text-overflow: ellipsis;
     }
 
-    .drill-chevron {
+    // Deliberately dimmer than the leading icon — these are affordance/status hints, not content.
+    .drill-chevron,
+    .imdb-link,
+    .imdb-pending {
       margin-right: 0;
       margin-left: 4px;
-      // Deliberately dimmer than the leading icon — it's an affordance hint, not content.
       color: var(--wdt-dim);
+    }
+
+    .imdb-link {
+      display: inline-flex;
+
+      &:hover {
+        color: var(--wdt-accent);
+      }
+    }
+
+    // Always rendered (not @if'd away) and hidden via visibility rather than omitted: a file row
+    // still reserves the chevron's box, so the IMDB icon before it lands in the same column whether
+    // or not the chevron itself is showing.
+    .drill-chevron-hidden {
+      visibility: hidden;
     }
   }
 }

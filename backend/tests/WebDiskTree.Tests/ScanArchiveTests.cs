@@ -185,7 +185,7 @@ public class ScanArchiveTests : IDisposable
         var result = Assert.IsType<CreatedResult>(await controller.Import(default));
         var summary = Assert.IsType<ScanSummaryDto>(result.Value);
         // A null validator ensures rejection happens before any filesystem validation or deletion.
-        var files = new FilesController(db, new FileEntryBulkWriter(db), null!);
+        var files = new FilesController(db, new FileEntryBulkWriter(db), null!, null!);
         var deletion = await files.DeleteFiles(new DeleteFilesRequest(summary.Id, ["/offline/child"]), default);
         Assert.IsType<ConflictObjectResult>(deletion.Result);
         Assert.Equal(3, await db.FileEntries.CountAsync());

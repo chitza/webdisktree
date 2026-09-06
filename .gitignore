@@ -19,3 +19,4 @@ npm-debug.log*
 # Editors / OS
 .vs/
 .DS_Store
+.playwright-mcp

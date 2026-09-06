@@ -37,4 +37,11 @@ export class FileService {
   deleteFiles(scanId: string, paths: string[]): Observable<DeleteFilesResult> {
     return this.http.post<DeleteFilesResult>('/api/files/delete', { scanId, paths });
   }
+
+  triggerImdbLookup(scanId: string, path: string): Observable<{ queued: number; alreadyCached: number }> {
+    return this.http.post<{ queued: number; alreadyCached: number }>(
+      `/api/scans/${scanId}/imdb-lookup`,
+      { path },
+    );
+  }
 }

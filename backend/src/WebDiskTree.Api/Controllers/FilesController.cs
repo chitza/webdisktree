@@ -5,6 +5,7 @@ using WebDiskTree.Core.Abstractions;
 using WebDiskTree.Core.Models;
 using WebDiskTree.Infrastructure.Data;
 using WebDiskTree.Infrastructure.Data.Entities;
+using WebDiskTree.Infrastructure.Media;
 
 namespace WebDiskTree.Api.Controllers;
 
@@ -13,7 +14,8 @@ namespace WebDiskTree.Api.Controllers;
 public class FilesController(
     WebDiskTreeDbContext dbContext,
     FileEntryBulkWriter bulkWriter,
-    IPathSafetyValidator pathSafetyValidator) : ControllerBase
+    IPathSafetyValidator pathSafetyValidator,
+    ImdbLookupQueue imdbLookupQueue) : ControllerBase
 {
     [HttpGet("scans/{id:guid}/tree")]
     public async Task<IActionResult> GetTree(Guid id, CancellationToken cancellationToken)
@@ -74,13 +76,110 @@ public class FilesController(
         };
 
         var totalCount = await query.LongCountAsync(cancellationToken);
-        var items = await query
+        var rows = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(f => new FileEntryDto(f.Name, f.Extension, f.SizeBytes, f.ModifiedUtc, f.IsDirectory))
             .ToListAsync(cancellationToken);
 
+        var items = await AttachImdbInfoAsync(rows, cancellationToken);
+
         return Ok(new PagedResult<FileEntryDto>(items, page, pageSize, totalCount));
+    }
+
+    [HttpPost("scans/{id:guid}/imdb-lookup")]
+    public async Task<ActionResult<TriggerImdbLookupResult>> TriggerImdbLookup(
+        Guid id, TriggerImdbLookupRequest request, CancellationToken cancellationToken)
+    {
+        var directoryId = await dbContext.DirectoryPaths
+            .Where(d => d.ScanId == id && d.Path == request.Path)
+            .Select(d => (long?)d.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (directoryId is null)
+        {
+            return NotFound("Directory not found in this scan.");
+        }
+
+        var entries = await dbContext.FileEntries
+            .Where(f => f.ScanId == id && f.ParentDirectoryId == directoryId)
+            .Select(f => new { f.Name, f.IsDirectory })
+            .ToListAsync(cancellationToken);
+
+        var parsed = new Dictionary<string, (string Title, int? Year, MediaKind Kind)>();
+        foreach (var entry in entries)
+        {
+            bool matched;
+            string title;
+            int? year;
+            MediaKind kind;
+            if (entry.IsDirectory)
+            {
+                matched = MediaTitleParser.TryParseDirectoryName(entry.Name, out title, out year, out kind);
+            }
+            else
+            {
+                matched = MediaTitleParser.TryParse(entry.Name, out title, out year, out kind);
+            }
+
+            if (matched)
+            {
+                parsed.TryAdd(MediaTitleParser.CacheKey(title, year), (title, year, kind));
+            }
+        }
+
+        if (parsed.Count == 0)
+        {
+            return Ok(new TriggerImdbLookupResult(0, 0));
+        }
+
+        var cacheKeys = parsed.Keys.ToList();
+        var existing = await dbContext.ImdbLookupCache
+            .Where(c => cacheKeys.Contains(c.CacheKey))
+            .ToDictionaryAsync(c => c.CacheKey, cancellationToken);
+
+        var alreadyCached = 0;
+        var now = DateTimeOffset.UtcNow;
+        var toEnqueue = new List<ImdbLookupRequest>();
+
+        foreach (var (cacheKey, (title, year, kind)) in parsed)
+        {
+            if (existing.TryGetValue(cacheKey, out var cacheEntry))
+            {
+                if (cacheEntry.Status is ImdbLookupStatus.Found or ImdbLookupStatus.NotFound)
+                {
+                    alreadyCached++;
+                    continue;
+                }
+
+                cacheEntry.Status = ImdbLookupStatus.Pending;
+                cacheEntry.LastAttemptAt = now;
+            }
+            else
+            {
+                dbContext.ImdbLookupCache.Add(new ImdbLookupCacheEntity
+                {
+                    CacheKey = cacheKey,
+                    ParsedTitle = title,
+                    Year = year,
+                    Kind = kind,
+                    Status = ImdbLookupStatus.Pending,
+                    LastAttemptAt = now,
+                });
+            }
+
+            toEnqueue.Add(new ImdbLookupRequest(cacheKey, title, year, kind));
+        }
+
+        // Persist the Pending rows before enqueueing: the background service reads them back by CacheKey
+        // from its own DB context as soon as it dequeues, which can race ahead of this save otherwise.
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        foreach (var lookupRequest in toEnqueue)
+        {
+            imdbLookupQueue.Enqueue(lookupRequest);
+        }
+
+        return Ok(new TriggerImdbLookupResult(toEnqueue.Count, alreadyCached));
     }
 
     [HttpGet("scans/{id:guid}/breakdown")]
@@ -162,5 +261,44 @@ public class FilesController(
         }
 
         return Ok(new DeleteFilesResult(deleted, failed));
+    }
+
+    private async Task<List<FileEntryDto>> AttachImdbInfoAsync(List<FileEntryEntity> rows, CancellationToken cancellationToken)
+    {
+        var parsedByRow = new Dictionary<FileEntryEntity, (string Title, int? Year)>();
+        var cacheKeys = new HashSet<string>();
+        foreach (var row in rows)
+        {
+            var matched = row.IsDirectory
+                ? MediaTitleParser.TryParseDirectoryName(row.Name, out var title, out var year, out _)
+                : MediaTitleParser.TryParse(row.Name, out title, out year, out _);
+
+            if (matched)
+            {
+                parsedByRow[row] = (title, year);
+                cacheKeys.Add(MediaTitleParser.CacheKey(title, year));
+            }
+        }
+
+        var cacheByKey = cacheKeys.Count == 0
+            ? new Dictionary<string, ImdbLookupCacheEntity>()
+            : await dbContext.ImdbLookupCache
+                .Where(c => cacheKeys.Contains(c.CacheKey))
+                .ToDictionaryAsync(c => c.CacheKey, cancellationToken);
+
+        return rows.Select(row =>
+        {
+            if (!parsedByRow.TryGetValue(row, out var parsed))
+            {
+                return new FileEntryDto(row.Name, row.Extension, row.SizeBytes, row.ModifiedUtc, row.IsDirectory);
+            }
+
+            var cacheEntry = cacheByKey.GetValueOrDefault(MediaTitleParser.CacheKey(parsed.Title, parsed.Year));
+            var imdbUrl = cacheEntry?.Status == ImdbLookupStatus.Found ? $"https://www.imdb.com/title/{cacheEntry.ImdbId}/" : null;
+
+            return new FileEntryDto(
+                row.Name, row.Extension, row.SizeBytes, row.ModifiedUtc, row.IsDirectory,
+                parsed.Title, imdbUrl, cacheEntry?.Status);
+        }).ToList();
     }
 }

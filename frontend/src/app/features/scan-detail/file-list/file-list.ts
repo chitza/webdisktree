@@ -6,7 +6,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { SelectionModel } from '@angular/cdk/collections';
 import { FileService } from '../../../core/services/file.service';
-import { FileEntry } from '../../../core/models/directory-node.model';
+import { FileEntry, ImdbLookupStatus } from '../../../core/models/directory-node.model';
 import { FormatBytesPipe } from '../../../shared/format-bytes.pipe';
 import { LocalDatePipe } from '../../../shared/local-date.pipe';
 
@@ -27,6 +27,7 @@ import { LocalDatePipe } from '../../../shared/local-date.pipe';
 export class FileList implements OnChanges {
   private readonly fileService = inject(FileService);
 
+  readonly ImdbLookupStatus = ImdbLookupStatus;
   readonly scanId = input.required<string>();
   readonly path = input.required<string>();
   readonly canDelete = input(false);
@@ -42,18 +43,61 @@ export class FileList implements OnChanges {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly selection = new SelectionModel<FileEntry>(true, []);
+  readonly imdbLookupPending = signal(false);
+  readonly imdbLookupMessage = signal('');
 
   private sortField: 'name' | 'size' | 'modified' = 'size';
   private sortDir: 'asc' | 'desc' = 'desc';
   private page = 1;
   private readonly pageSize = 25;
+  private imdbPollHandle: ReturnType<typeof setTimeout> | null = null;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['path']) {
       this.page = 1;
       this.selection.clear();
+      this.imdbLookupMessage.set('');
+      if (this.imdbPollHandle) {
+        clearTimeout(this.imdbPollHandle);
+        this.imdbPollHandle = null;
+      }
       this.load();
     }
+  }
+
+  findImdbLinks(): void {
+    if (this.imdbLookupPending()) return;
+
+    this.imdbLookupPending.set(true);
+    this.imdbLookupMessage.set('');
+    this.fileService.triggerImdbLookup(this.scanId(), this.path()).subscribe({
+      next: ({ queued, alreadyCached }) => {
+        this.imdbLookupPending.set(false);
+        if (queued > 0) {
+          this.imdbLookupMessage.set(`Looking up ${queued} title${queued === 1 ? '' : 's'} on IMDB…`);
+          this.pollForImdbResults();
+        } else {
+          this.imdbLookupMessage.set(`Nothing new to look up (${alreadyCached} already cached).`);
+        }
+      },
+      error: () => {
+        this.imdbLookupPending.set(false);
+        this.imdbLookupMessage.set('Could not start the IMDB lookup. Please try again.');
+      },
+    });
+  }
+
+  /** Lookups run in a background queue with no push notification back to the UI, so this polls
+   * a bounded number of times to reveal newly-resolved links without requiring a manual refresh. */
+  private pollForImdbResults(remaining = 5): void {
+    if (remaining <= 0) {
+      this.imdbLookupMessage.set('');
+      return;
+    }
+    this.imdbPollHandle = setTimeout(() => {
+      this.load();
+      this.pollForImdbResults(remaining - 1);
+    }, 2000);
   }
 
   private load(): void {
