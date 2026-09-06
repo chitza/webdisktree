@@ -51,6 +51,8 @@ export class ScanDetail {
   readonly loadingTree = signal(false);
   readonly canDelete = signal(false);
   readonly viewMode = signal<ViewMode>('treemap');
+  readonly freedBytes = signal(0);
+  private readonly deletedSizes = new Map<string, number>();
 
   readonly focus = computed(() => {
     const crumbs = this.breadcrumb();
@@ -60,7 +62,11 @@ export class ScanDetail {
   constructor() {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
-      if (id) this.loadScan(id);
+      if (id) {
+        this.freedBytes.set(0);
+        this.deletedSizes.clear();
+        this.loadScan(id);
+      }
     });
   }
 
@@ -98,15 +104,27 @@ export class ScanDetail {
   }
 
   onFilesDeleted(deletedEntries: FileEntry[]): void {
+    const parentPath = this.focus()?.fullPath;
+    const adjustedEntries = deletedEntries.map((entry) => {
+      const path = `${parentPath?.replace(/[\\/]$/, '') ?? ''}/${entry.name}`;
+      let alreadyCounted = 0;
+      for (const [deletedPath, size] of this.deletedSizes) {
+        if (deletedPath === path || deletedPath.startsWith(`${path}/`)) {
+          alreadyCounted += size;
+          this.deletedSizes.delete(deletedPath);
+        }
+      }
+      this.deletedSizes.set(path, entry.sizeBytes);
+      return { ...entry, sizeBytes: Math.max(0, entry.sizeBytes - alreadyCounted) };
+    });
+    this.freedBytes.update((bytes) => bytes + adjustedEntries.reduce((sum, entry) => sum + entry.sizeBytes, 0));
     const current = this.scan();
     if (current) {
-      // Cheap read to reflect that background aggregate stats (header totals) are now stale — the
-      // treemap/list below are already patched to reflect the deletion, so this is informational only,
-      // not a prompt the user needs to act on before continuing to browse.
+      // Refresh stale status; the freed-space total stays local to this view.
       this.scanService.getScan(current.id).subscribe((scan) => this.scan.set(scan));
     }
 
-    this.breadcrumb.update((crumbs) => this.removeFromBreadcrumb(crumbs, deletedEntries));
+    this.breadcrumb.update((crumbs) => this.removeFromBreadcrumb(crumbs, adjustedEntries));
   }
 
   /** The tree the treemap renders comes from a static blob generated at scan time — deleting rows from

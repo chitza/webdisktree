@@ -22,8 +22,15 @@
   </div>
 } @else if (scan().isStale) {
   <div class="banner banner-stale">
-    <mat-icon>warning</mat-icon>
-    <span>This view is stale (files were deleted since the scan ran).</span>
+    <mat-icon>info</mat-icon>
+    @if (freedBytes() > 0) {
+      <span class="freed-space" role="status" title="Based on the scanned sizes of successfully deleted files">
+        Freed-up {{ freedBytes() | formatBytes }}
+      </span>
+    }
+    <span>
+      This view is stale (files were deleted since the scan ran).
+    </span>
     <button type="button" class="banner-action" (click)="rescan.emit()">Rescan</button>
   </div>
 }

@@ -23,6 +23,7 @@ export class ScanProgressBanner implements OnChanges {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly scan = input.required<ScanSummary>();
+  readonly freedBytes = input(0);
   readonly refresh = output<void>();
   readonly rescan = output<void>();
 
