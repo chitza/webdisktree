@@ -28,7 +28,7 @@
         Freed-up {{ freedBytes() | formatBytes }}
       </span>
     }
-    <span>
+    <span class="stale-message">
       This view is stale (files were deleted since the scan ran).
     </span>
     <button type="button" class="banner-action" (click)="rescan.emit()">Rescan</button>
