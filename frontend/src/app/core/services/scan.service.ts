@@ -33,7 +33,11 @@ export class ScanService {
     return this.http.post<void>(`/api/scans/${id}/cancel`, {});
   }
 
-  deleteScan(id: string): Observable<void> {
-    return this.http.delete<void>(`/api/scans/${id}`);
+  setPinned(id: string, isPinned: boolean): Observable<ScanSummary> {
+    return this.http.put<ScanSummary>(`/api/scans/${id}/pin`, { isPinned });
+  }
+
+  deleteScan(id: string, confirmPinned = false): Observable<void> {
+    return this.http.delete<void>(`/api/scans/${id}`, { params: { confirmPinned } });
   }
 }

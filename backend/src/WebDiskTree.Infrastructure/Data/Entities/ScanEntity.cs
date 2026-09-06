@@ -15,6 +15,7 @@ public class ScanEntity
     public long TotalDirs { get; set; }
     public int ErrorCount { get; set; }
     public string? BlobPath { get; set; }
+    public bool IsPinned { get; set; }
     public bool IsStale { get; set; }
     public string? ErrorMessage { get; set; }
 }

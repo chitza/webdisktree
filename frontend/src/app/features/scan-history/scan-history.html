@@ -8,6 +8,10 @@
   <p role="alert">{{ transferError() }}</p>
 }
 
+@if (actionError()) {
+  <p role="alert">{{ actionError() }}</p>
+}
+
 @if (loading()) {
   <p>Loading…</p>
 } @else if (scans().length === 0) {
@@ -30,6 +34,9 @@
         <span class="status-pill" [class]="'status-' + statusLabel(scan.status).toLowerCase()">{{
           statusLabel(scan.status)
         }}</span>
+        @if (scan.isPinned) {
+          <span class="status-pill">pinned</span>
+        }
         @if (scan.isStale) {
           <span class="status-pill status-stale">stale</span>
         }
@@ -54,6 +61,13 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let scan">
+        <button mat-icon-button (click)="togglePin(scan, $event)"
+          [disabled]="pinning().includes(scan.id)"
+          [attr.aria-label]="scan.isPinned ? 'Unpin scan' : 'Pin scan'"
+          [attr.aria-pressed]="scan.isPinned"
+          [title]="scan.isPinned ? 'Unpin scan' : 'Pin scan'">
+          <mat-icon>{{ scan.isPinned ? 'push_pin' : 'outlined_flag' }}</mat-icon>
+        </button>
         @if (scan.status === ScanStatus.Completed) {
           <a mat-icon-button [href]="'/api/scans/' + scan.id + '/export'"
             download (click)="$event.stopPropagation()"

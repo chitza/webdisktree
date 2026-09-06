@@ -1,6 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatDialog } from '@angular/material/dialog';
+import { UnpinScanDialog } from '../../shared/unpin-scan-dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { SplitAreaComponent, SplitComponent } from 'angular-split';
 import { ScanService } from '../../core/services/scan.service';
@@ -42,6 +44,7 @@ export class ScanDetail {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly scanService = inject(ScanService);
+  private readonly dialog = inject(MatDialog);
   private readonly fileService = inject(FileService);
 
   readonly ScanStatus = ScanStatus;
@@ -49,6 +52,8 @@ export class ScanDetail {
   readonly scan = signal<ScanSummary | null>(null);
   readonly breadcrumb = signal<DirectoryNode[]>([]);
   readonly loadingTree = signal(false);
+  readonly pinning = signal(false);
+  readonly pinError = signal('');
   readonly canDelete = signal(false);
   readonly viewMode = signal<ViewMode>('treemap');
   readonly freedBytes = signal(0);
@@ -63,6 +68,7 @@ export class ScanDetail {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
+        this.pinError.set('');
         this.freedBytes.set(0);
         this.deletedSizes.clear();
         this.loadScan(id);
@@ -95,6 +101,40 @@ export class ScanDetail {
         this.loadingTree.set(false);
       },
       error: () => this.loadingTree.set(false),
+    });
+  }
+
+  togglePin(): void {
+    const current = this.scan();
+    if (!current || this.pinning()) return;
+    if (current.isPinned) {
+      this.dialog.open(UnpinScanDialog, {
+        data: { rootPath: current.rootPath },
+        width: '480px',
+        autoFocus: 'first-tabbable',
+      }).afterClosed().subscribe(confirmed => {
+        if (confirmed === true && this.scan()?.id === current.id) this.savePin(current, false);
+      });
+    } else {
+      this.savePin(current, true);
+    }
+  }
+
+  private savePin(current: ScanSummary, isPinned: boolean): void {
+    this.pinning.set(true);
+    this.pinError.set('');
+    this.scanService.setPinned(current.id, isPinned).subscribe({
+      next: updated => {
+        this.scan.update(scan => scan?.id === updated.id
+          ? { ...scan, isPinned: updated.isPinned } : scan);
+        this.pinning.set(false);
+      },
+      error: () => {
+        this.pinning.set(false);
+        if (this.scan()?.id === current.id) {
+          this.pinError.set('Could not update the scan pin. Please try again.');
+        }
+      },
     });
   }
 

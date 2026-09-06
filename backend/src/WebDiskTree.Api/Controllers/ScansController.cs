@@ -93,8 +93,20 @@ public class ScansController(
         return NoContent();
     }
 
+    [HttpPut("{id:guid}/pin")]
+    public async Task<ActionResult<ScanSummaryDto>> SetPinned(
+        Guid id, SetScanPinnedRequest request, CancellationToken cancellationToken)
+    {
+        var scan = await dbContext.Scans.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+        if (scan is null) return NotFound();
+
+        scan.IsPinned = request.IsPinned;
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return Ok(ToDto(scan));
+    }
+
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteScan(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteScan(Guid id, CancellationToken cancellationToken, [FromQuery] bool confirmPinned = false)
     {
         var scan = await dbContext.Scans.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
         if (scan is null)
@@ -105,6 +117,11 @@ public class ScansController(
         if (scan.Status is ScanStatus.Pending or ScanStatus.Running)
         {
             return Conflict("Scan is still in progress. Cancel it before deleting.");
+        }
+
+        if (scan.IsPinned && !confirmPinned)
+        {
+            return Conflict("This scan is pinned. Confirm deletion of the pinned scan.");
         }
 
         await dbContext.FileEntries.Where(f => f.ScanId == id).ExecuteDeleteAsync(cancellationToken);
@@ -123,5 +140,5 @@ public class ScansController(
 
     private static ScanSummaryDto ToDto(ScanEntity s) => new(
         s.Id, s.RootPath, s.Trigger, s.Status, s.StartedAt, s.CompletedAt,
-        s.TotalBytes, s.TotalFiles, s.TotalDirs, s.ErrorCount, s.IsStale, s.ErrorMessage);
+        s.TotalBytes, s.TotalFiles, s.TotalDirs, s.ErrorCount, s.IsStale, s.ErrorMessage, s.IsPinned);
 }

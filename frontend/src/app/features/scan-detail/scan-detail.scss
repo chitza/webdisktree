@@ -46,6 +46,7 @@
 
   // Flat text link rather than a Material button — the toolbar and header are the two places
   // stock Material chrome reads loudest.
+  .pin-button,
   .back-link {
     @include tokens.flat-control;
     display: inline-flex;
@@ -58,6 +59,11 @@
     text-decoration: none;
     font-weight: 500;
     color: var(--wdt-accent);
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
 
     &:hover {
       color: var(--wdt-accent-hover);

@@ -24,6 +24,7 @@ export interface ScanSummary {
   totalDirs: number;
   errorCount: number;
   isStale: boolean;
+  isPinned: boolean;
   errorMessage: string | null;
 }
 
