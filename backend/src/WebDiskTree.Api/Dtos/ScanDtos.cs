@@ -56,3 +56,16 @@ public record ScheduleDto(
     DateTimeOffset? NextRunAt);
 
 public record AllowedRootDto(string Path, string Label, bool AllowDelete);
+
+public record ImdbLookupCacheSummaryDto(int Count);
+
+public record ImdbLookupCacheRow(
+    string CacheKey,
+    string ParsedTitle,
+    int? Year,
+    MediaKind Kind,
+    string? ImdbId,
+    ImdbLookupStatus Status,
+    DateTimeOffset? LastAttemptAt);
+
+public record ImdbLookupCacheImportResult(int Added, int Updated);

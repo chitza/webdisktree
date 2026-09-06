@@ -18,5 +18,9 @@ export const routes: Routes = [
     path: 'schedules',
     loadComponent: () => import('./features/schedules/schedules').then((m) => m.Schedules),
   },
+  {
+    path: 'imdb-cache',
+    loadComponent: () => import('./features/imdb-cache/imdb-cache').then((m) => m.ImdbCache),
+  },
   { path: '**', redirectTo: 'scans' },
 ];
