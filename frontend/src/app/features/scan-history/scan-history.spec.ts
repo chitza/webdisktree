@@ -65,8 +65,23 @@ describe('ScanHistory pin and delete', () => {
     fixture.detectChanges();
     expect(service.setPinned).toHaveBeenLastCalledWith(scan.id, true);
     fixture.nativeElement.querySelector('[aria-label="Unpin scan"]').click();
-    expect(service.setPinned).toHaveBeenLastCalledWith(scan.id, false);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(service.setPinned).toHaveBeenCalledTimes(1);
+    (document.querySelector('mat-dialog-actions button:last-child') as HTMLButtonElement).click();
+    await vi.waitFor(() => expect(service.setPinned).toHaveBeenLastCalledWith(scan.id, false));
     expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('keeps the scan pinned when unpinning is cancelled', async () => {
+    const { fixture, service } = await setup(true);
+    fixture.nativeElement.querySelector('[aria-label="Unpin scan"]').click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    (document.querySelector('mat-dialog-actions button') as HTMLButtonElement).click();
+    await vi.waitFor(() => expect(document.querySelector('mat-dialog-container')).toBeNull());
+    expect(service.setPinned).not.toHaveBeenCalled();
+    expect(fixture.componentInstance.scans()[0].isPinned).toBe(true);
   });
 
   for (const pinned of [false, true]) {

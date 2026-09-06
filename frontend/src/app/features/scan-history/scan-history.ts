@@ -4,6 +4,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
+import { UnpinScanDialog } from '../../shared/unpin-scan-dialog';
 import { DeleteScanDialog } from './delete-scan-dialog';
 import { ScanService } from '../../core/services/scan.service';
 import { ScanStatus, ScanSummary, ScanTrigger } from '../../core/models/scan.model';
@@ -89,9 +90,24 @@ export class ScanHistory {
   togglePin(scan: ScanSummary, event: Event): void {
     event.stopPropagation();
     event.preventDefault();
+    if (this.pinning().includes(scan.id)) return;
+    if (scan.isPinned) {
+      this.dialog.open(UnpinScanDialog, {
+        data: { rootPath: scan.rootPath },
+        width: '480px',
+        autoFocus: 'first-tabbable',
+      }).afterClosed().subscribe(confirmed => {
+        if (confirmed === true) this.savePin(scan, false);
+      });
+    } else {
+      this.savePin(scan, true);
+    }
+  }
+
+  private savePin(scan: ScanSummary, isPinned: boolean): void {
     this.actionError.set('');
     this.pinning.update(ids => [...ids, scan.id]);
-    this.scanService.setPinned(scan.id, !scan.isPinned).subscribe({
+    this.scanService.setPinned(scan.id, isPinned).subscribe({
       next: updated => {
         this.scans.update(scans => scans.map(s => s.id === updated.id ? updated : s));
         this.pinning.update(ids => ids.filter(id => id !== scan.id));

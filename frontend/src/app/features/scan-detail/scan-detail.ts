@@ -1,6 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatDialog } from '@angular/material/dialog';
+import { UnpinScanDialog } from '../../shared/unpin-scan-dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { SplitAreaComponent, SplitComponent } from 'angular-split';
 import { ScanService } from '../../core/services/scan.service';
@@ -42,6 +44,7 @@ export class ScanDetail {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly scanService = inject(ScanService);
+  private readonly dialog = inject(MatDialog);
   private readonly fileService = inject(FileService);
 
   readonly ScanStatus = ScanStatus;
@@ -104,9 +107,23 @@ export class ScanDetail {
   togglePin(): void {
     const current = this.scan();
     if (!current || this.pinning()) return;
+    if (current.isPinned) {
+      this.dialog.open(UnpinScanDialog, {
+        data: { rootPath: current.rootPath },
+        width: '480px',
+        autoFocus: 'first-tabbable',
+      }).afterClosed().subscribe(confirmed => {
+        if (confirmed === true && this.scan()?.id === current.id) this.savePin(current, false);
+      });
+    } else {
+      this.savePin(current, true);
+    }
+  }
+
+  private savePin(current: ScanSummary, isPinned: boolean): void {
     this.pinning.set(true);
     this.pinError.set('');
-    this.scanService.setPinned(current.id, !current.isPinned).subscribe({
+    this.scanService.setPinned(current.id, isPinned).subscribe({
       next: updated => {
         this.scan.update(scan => scan?.id === updated.id
           ? { ...scan, isPinned: updated.isPinned } : scan);
