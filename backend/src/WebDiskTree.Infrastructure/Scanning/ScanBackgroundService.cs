@@ -8,6 +8,7 @@ using WebDiskTree.Core.Models;
 using WebDiskTree.Infrastructure.Compression;
 using WebDiskTree.Infrastructure.Data;
 using WebDiskTree.Infrastructure.Data.Entities;
+using WebDiskTree.Infrastructure.Scheduling;
 
 namespace WebDiskTree.Infrastructure.Scanning;
 
@@ -23,6 +24,7 @@ public class ScanBackgroundService(
     TreeBlobSerializer blobSerializer,
     IServiceScopeFactory scopeFactory,
     IOptions<ScanStorageOptions> storageOptions,
+    ScheduleRetentionService retentionService,
     ILogger<ScanBackgroundService> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -101,6 +103,11 @@ public class ScanBackgroundService(
         finally
         {
             cancellationRegistry.Remove(request.ScanId);
+        }
+
+        if (scanEntity.ScheduleId is { } scheduleId)
+        {
+            await retentionService.PruneAsync(dbContext, scheduleId, hostStoppingToken);
         }
     }
 

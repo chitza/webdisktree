@@ -19,6 +19,7 @@ public class WebDiskTreeDbContext(DbContextOptions<WebDiskTreeDbContext> options
             b.Property(s => s.SeqId).ValueGeneratedOnAdd();
             b.HasAlternateKey(s => s.Id);
             b.HasIndex(s => s.StartedAt);
+            b.HasIndex(s => s.ScheduleId);
         });
 
         modelBuilder.Entity<ScheduleEntity>(b =>

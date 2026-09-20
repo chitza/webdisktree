@@ -31,6 +31,7 @@ builder.Services.AddDbContext<WebDiskTreeDbContext>(options =>
 builder.Services.Configure<AllowedRootsOptions>(builder.Configuration.GetSection("AllowedRoots"));
 builder.Services.Configure<ScanStorageOptions>(o => o.BlobDirectory = blobDirectory);
 builder.Services.Configure<TmdbOptions>(builder.Configuration.GetSection("Tmdb"));
+builder.Services.Configure<ScheduleRetentionOptions>(builder.Configuration.GetSection("ScheduleRetention"));
 
 builder.Services.AddSingleton<ScanQueue>();
 builder.Services.AddSingleton<ScanCancellationRegistry>();
@@ -43,6 +44,7 @@ builder.Services.AddHttpClient<TmdbClient>();
 builder.Services.AddScoped<FileEntryBulkWriter>();
 builder.Services.AddScoped<IPathSafetyValidator, PathSafetyValidator>();
 builder.Services.AddSingleton<AllowedRootsService>();
+builder.Services.AddSingleton<ScheduleRetentionService>();
 
 builder.Services.AddHostedService<ScanBackgroundService>();
 builder.Services.AddHostedService<ScheduleEvaluatorService>();
