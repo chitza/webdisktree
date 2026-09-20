@@ -108,6 +108,7 @@ public class SchedulesController(
         {
             Id = scanId,
             RootPath = schedule.RootPath,
+            ScheduleId = schedule.Id,
             Trigger = ScanTrigger.Scheduled,
             Status = ScanStatus.Pending,
         });

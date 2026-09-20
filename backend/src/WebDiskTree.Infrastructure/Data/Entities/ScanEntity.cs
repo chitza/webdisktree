@@ -10,6 +10,8 @@ public class ScanEntity
     public int SeqId { get; set; }
     public Guid Id { get; set; }
     public required string RootPath { get; set; }
+    /// <summary>Set for scans triggered by a schedule (including its manual "run now"); null for ad-hoc manual scans. Used to scope retention pruning to one schedule's history.</summary>
+    public Guid? ScheduleId { get; set; }
     public ScanTrigger Trigger { get; set; }
     public ScanStatus Status { get; set; }
     public DateTimeOffset? StartedAt { get; set; }
