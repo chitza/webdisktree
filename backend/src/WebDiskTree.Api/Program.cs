@@ -44,6 +44,10 @@ builder.Services.AddHttpClient<TmdbClient>();
 builder.Services.AddScoped<FileEntryBulkWriter>();
 builder.Services.AddScoped<IPathSafetyValidator, PathSafetyValidator>();
 builder.Services.AddSingleton<AllowedRootsService>();
+builder.Services.Configure<HostRootOptions>(builder.Configuration.GetSection("HostRoot"));
+builder.Services.AddSingleton<HostRootService>();
+builder.Services.AddSingleton<IMountTable>(OperatingSystem.IsLinux() ? new LinuxMountTable() : new FallbackMountTable());
+builder.Services.AddSingleton<MountDetectionService>();
 builder.Services.AddSingleton<ScheduleRetentionService>();
 
 builder.Services.AddHostedService<ScanBackgroundService>();

@@ -10,6 +10,7 @@ public class WebDiskTreeDbContext(DbContextOptions<WebDiskTreeDbContext> options
     public DbSet<FileEntryEntity> FileEntries => Set<FileEntryEntity>();
     public DbSet<DirectoryPathEntity> DirectoryPaths => Set<DirectoryPathEntity>();
     public DbSet<ImdbLookupCacheEntity> ImdbLookupCache => Set<ImdbLookupCacheEntity>();
+    public DbSet<FavoritePathEntity> FavoritePaths => Set<FavoritePathEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -52,6 +53,12 @@ public class WebDiskTreeDbContext(DbContextOptions<WebDiskTreeDbContext> options
         {
             b.HasKey(c => c.Id);
             b.HasIndex(c => c.CacheKey).IsUnique();
+        });
+
+        modelBuilder.Entity<FavoritePathEntity>(b =>
+        {
+            b.HasKey(f => f.Id);
+            b.HasIndex(f => f.Path).IsUnique();
         });
     }
 }
