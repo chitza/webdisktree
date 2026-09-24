@@ -57,7 +57,18 @@ public class PathSafetyValidator(IMountTable mountTable, HostRootService hostRoo
             return false;
         }
 
-        throw new NotImplementedException();
+        if (!hostRoot.IsUnderHostRoot(resolved))
+        {
+            error = "Path is outside the host root.";
+            return false;
+        }
+
+        var mount = mountTable.FindContaining(resolved);
+        if (mount is null || mount.IsReadOnly)
+        {
+            error = "Path is on a read-only mount.";
+            return false;
+        }
 
         canonicalPath = resolved;
         error = null;
