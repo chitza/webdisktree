@@ -18,7 +18,7 @@
         @if (favorites().length > 0) {
           <mat-optgroup label="Favorites">
             @for (root of favorites(); track root.path) {
-              <mat-option [value]="root.path">{{ root.label }}</mat-option>
+              <mat-option [value]="root.path">{{ root.label }} ({{ root.path }})</mat-option>
             }
           </mat-optgroup>
         }

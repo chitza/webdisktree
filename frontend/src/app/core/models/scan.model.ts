@@ -41,3 +41,14 @@ export function isSameOrUnder(root: string, path: string): boolean {
   const prefix = root.endsWith('/') ? root : root + '/';
   return path.startsWith(prefix);
 }
+
+/**
+ * Splits `roots` into mounts and favorites, dropping any mount whose `path` exactly matches a
+ * favorite's `path` — the favorite's own entry is what remains selectable for that path.
+ */
+export function groupRoots(roots: ScanRoot[]): { mounts: ScanRoot[]; favorites: ScanRoot[] } {
+  const favorites = roots.filter((r) => r.kind === 'favorite');
+  const favoritePaths = new Set(favorites.map((r) => r.path));
+  const mounts = roots.filter((r) => r.kind === 'mount' && !favoritePaths.has(r.path));
+  return { mounts, favorites };
+}

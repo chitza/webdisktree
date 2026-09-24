@@ -7,9 +7,25 @@
   <mat-card-content class="form-row">
     <mat-form-field appearance="outline">
       <mat-label>Path</mat-label>
-      <input matInput name="path" [(ngModel)]="newPath" placeholder="/hostfs/home/me/Downloads" (keydown.enter)="add()" />
-      <mat-hint>Full path inside the app, under the host root</mat-hint>
+      <mat-select [(ngModel)]="selectedPathOption" (selectionChange)="onPathOptionChange($event.value)">
+        @if (mounts().length > 0) {
+          <mat-optgroup label="Drives and mounts">
+            @for (root of mounts(); track root.path) {
+              <mat-option [value]="root.path">{{ root.label }}</mat-option>
+            }
+          </mat-optgroup>
+        }
+        <mat-option [value]="CUSTOM_PATH">Custom path…</mat-option>
+      </mat-select>
     </mat-form-field>
+
+    @if (showCustomPath()) {
+      <mat-form-field appearance="outline">
+        <mat-label>Custom path</mat-label>
+        <input matInput name="path" [(ngModel)]="newPath" placeholder="/hostfs/home/me/Downloads" (keydown.enter)="add()" />
+        <mat-hint>Full path inside the app, under the host root</mat-hint>
+      </mat-form-field>
+    }
 
     <mat-form-field appearance="outline">
       <mat-label>Label (optional)</mat-label>

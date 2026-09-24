@@ -12,7 +12,7 @@ import { MatTableModule } from '@angular/material/table';
 import { ScheduleService } from '../../core/services/schedule.service';
 import { ScanService } from '../../core/services/scan.service';
 import { Schedule } from '../../core/models/schedule.model';
-import { ScanRoot } from '../../core/models/scan.model';
+import { groupRoots, ScanRoot } from '../../core/models/scan.model';
 import { LocalDatePipe } from "../../shared/local-date.pipe";
 
 @Component({
@@ -39,8 +39,9 @@ export class Schedules {
 
   readonly schedules = signal<Schedule[]>([]);
   readonly roots = signal<ScanRoot[]>([]);
-  readonly mounts = computed(() => this.roots().filter((r) => r.kind === 'mount'));
-  readonly favorites = computed(() => this.roots().filter((r) => r.kind === 'favorite'));
+  private readonly grouped = computed(() => groupRoots(this.roots()));
+  readonly mounts = computed(() => this.grouped().mounts);
+  readonly favorites = computed(() => this.grouped().favorites);
   readonly displayedColumns = ['rootPath', 'cronExpression', 'enabled', 'lastRunAt', 'nextRunAt', 'actions'];
 
   newRootPath: string | null = null;
