@@ -14,7 +14,7 @@ h1 {
 
 .form-row {
   display: flex;
-  gap: 16px;
+  gap: 32px 16px;
   flex-wrap: wrap;
 
   mat-form-field {
@@ -36,8 +36,9 @@ h1 {
   }
 
   .mat-column-actions {
-    width: 96px;
+    width: 120px;
     text-align: right;
+    white-space: nowrap;
   }
 
   .label-input {
