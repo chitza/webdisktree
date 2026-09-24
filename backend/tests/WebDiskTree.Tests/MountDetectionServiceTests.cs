@@ -47,10 +47,12 @@ public class MountDetectionServiceTests
             new MountInfo("/hostfs/run/user/1000/gvfs", "fuse.gvfsd-fuse", true),
             new MountInfo("/hostfs/runner", "xfs", true),
             new MountInfo("/hostfs/mnt/nas", "nfs4", true),
+            new MountInfo("/hostfs/mnt/nfs3", "nfs", true),
+            new MountInfo("/hostfs/media/usb", "vfat", true),
             new MountInfo("/hostfsx", "ext4", true),
         ]).GetScanRoots();
 
-        Assert.Equal(["/hostfs", "/hostfs/mnt/nas", "/hostfs/runner"], roots.Select(r => r.Path));
+        Assert.Equal(["/hostfs", "/hostfs/media/usb", "/hostfs/mnt/nas", "/hostfs/mnt/nfs3", "/hostfs/runner"], roots.Select(r => r.Path));
     }
 
     [Fact]
