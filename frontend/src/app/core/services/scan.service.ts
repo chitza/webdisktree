@@ -1,14 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AllowedRoot, ScanSummary } from '../models/scan.model';
+import { ScanRoot, ScanSummary } from '../models/scan.model';
 
 @Injectable({ providedIn: 'root' })
 export class ScanService {
   private readonly http = inject(HttpClient);
 
-  getRoots(): Observable<AllowedRoot[]> {
-    return this.http.get<AllowedRoot[]>('/api/roots');
+  getRoots(): Observable<ScanRoot[]> {
+    return this.http.get<ScanRoot[]>('/api/roots');
   }
 
   getScans(): Observable<ScanSummary[]> {

@@ -8,8 +8,19 @@
     <mat-form-field appearance="outline">
       <mat-label>Root</mat-label>
       <mat-select [(ngModel)]="newRootPath">
-        @for (root of roots(); track root.path) {
-          <mat-option [value]="root.path">{{ root.label }}</mat-option>
+        @if (mounts().length > 0) {
+          <mat-optgroup label="Drives and mounts">
+            @for (root of mounts(); track root.path) {
+              <mat-option [value]="root.path">{{ root.label }}</mat-option>
+            }
+          </mat-optgroup>
+        }
+        @if (favorites().length > 0) {
+          <mat-optgroup label="Favorites">
+            @for (root of favorites(); track root.path) {
+              <mat-option [value]="root.path">{{ root.label }}</mat-option>
+            }
+          </mat-optgroup>
         }
       </mat-select>
     </mat-form-field>

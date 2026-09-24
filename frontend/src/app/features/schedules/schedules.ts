@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -12,7 +12,7 @@ import { MatTableModule } from '@angular/material/table';
 import { ScheduleService } from '../../core/services/schedule.service';
 import { ScanService } from '../../core/services/scan.service';
 import { Schedule } from '../../core/models/schedule.model';
-import { AllowedRoot } from '../../core/models/scan.model';
+import { ScanRoot } from '../../core/models/scan.model';
 import { LocalDatePipe } from "../../shared/local-date.pipe";
 
 @Component({
@@ -38,7 +38,9 @@ export class Schedules {
   private readonly router = inject(Router);
 
   readonly schedules = signal<Schedule[]>([]);
-  readonly roots = signal<AllowedRoot[]>([]);
+  readonly roots = signal<ScanRoot[]>([]);
+  readonly mounts = computed(() => this.roots().filter((r) => r.kind === 'mount'));
+  readonly favorites = computed(() => this.roots().filter((r) => r.kind === 'favorite'));
   readonly displayedColumns = ['rootPath', 'cronExpression', 'enabled', 'lastRunAt', 'nextRunAt', 'actions'];
 
   newRootPath: string | null = null;

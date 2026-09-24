@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -7,7 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { ScanService } from '../../core/services/scan.service';
-import { AllowedRoot } from '../../core/models/scan.model';
+import { ScanRoot } from '../../core/models/scan.model';
 
 @Component({
   selector: 'app-scan-start',
@@ -26,7 +26,9 @@ export class ScanStart {
   private readonly scanService = inject(ScanService);
   private readonly router = inject(Router);
 
-  readonly roots = signal<AllowedRoot[]>([]);
+  readonly roots = signal<ScanRoot[]>([]);
+  readonly mounts = computed(() => this.roots().filter((r) => r.kind === 'mount'));
+  readonly favorites = computed(() => this.roots().filter((r) => r.kind === 'favorite'));
   readonly selectedPath = signal<string | null>(null);
   readonly starting = signal(false);
   readonly error = signal<string | null>(null);
@@ -39,7 +41,7 @@ export class ScanStart {
           this.selectedPath.set(roots[0].path);
         }
       },
-      error: () => this.error.set('Failed to load allowed roots.'),
+      error: () => this.error.set('Failed to load drives and favorites.'),
     });
   }
 
