@@ -63,8 +63,10 @@ curl -s -o /dev/null -w "%{http_code}\n" "http://$P/api/scans" # expect 200
 ```
 
 Then make the requests that the plan lists under "Smoke run". If a request fails, read `docker logs wdt-<slug>`.
-The container has no `AllowedRoots` and no host mounts. If the plan needs a scan, it must say which
-`-e AllowedRoots__Roots__0__Path=...` and `-v` mounts to add. Mount only a directory that you made for the test, read-only.
+The container has no host mounts, so nothing is listed under the host root (`/hostfs`). If the plan needs a scan or a delete,
+make a test directory on a disk filesystem (the scratchpad or the worktree, not `tmpfs`, which mount detection skips) and mount it
+read-only at `/hostfs`: `-v "$D:/hostfs:ro"`. To test delete, also mount a subdirectory of it read-write: `-v "$D/rw:/hostfs/rw:rw"`.
+Never mount the real `/` or any other real host path, even if the plan says so. Write the substitution under "Decisions".
 
 Remove the smoke run: `docker rm -f wdt-<slug>; docker rmi webdisktree:<slug>`.
 
@@ -74,7 +76,7 @@ The plan must approve each of these under "Needs approval". If it does not, go t
 
 - A new EF migration, or any change to the entities or `WebDiskTreeDbContext`.
 - A migration that deletes, rewrites or moves existing rows.
-- A change to `Security/` (path safety, `AllowedRoots`), to the delete endpoint, or to what a scan can reach.
+- A change to `Security/` (path safety, host root, mount detection), to the delete endpoint, or to what a scan can reach.
 - A change to the scan export or IMDB cache archive format, or to which archive versions import.
 - A new NuGet or npm package, or a version change of one.
 - A change to `Dockerfile`, `docker-compose.yml`, `.github/`, or the default config in `appsettings*.json`.
