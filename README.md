@@ -12,6 +12,7 @@ A self-hosted, web-based disk usage visualizer — like WizTree or TreeMap-Disk-
 - Scan history — revisit past scans, not just the latest
 - Export completed scans as tar.gz archives and import them as read-only snapshots
 - Scheduled scans (cron expressions) for specific paths
+- Drives and mounts detected automatically, plus favorite paths you manage in the app
 
 ## Repo layout
 
@@ -22,24 +23,21 @@ Dockerfile
 docker-compose.yml
 ```
 
-## Configuration: AllowedRoots
+## What can be scanned and deleted
 
-For safety, the app will only scan (and, if enabled, delete under) paths explicitly listed in `AllowedRoots` — there is no free-text arbitrary path scanning. This is empty by default, so **nothing is scannable until you configure it**.
+The app only works under one directory, the **host root** (`HostRoot:Path`): `/hostfs` by default, `/` in development.
+Scans, schedules and favorites outside it are rejected.
 
-Configure via environment variables (see `docker-compose.yml` for an example) or `appsettings.json`:
-
-```json
-{
-  "AllowedRoots": {
-    "Roots": [
-      { "Path": "/hostfs", "Label": "Whole disk", "AllowDelete": false },
-      { "Path": "/hostfs/home/me/Downloads", "Label": "Downloads", "AllowDelete": true }
-    ]
-  }
-}
-```
-
-Delete is only permitted under a root with `AllowDelete: true`, which also requires that path to be mounted read-write in the container (see below).
+- **Drives and mounts.** The scan and schedule drop-downs list the disk filesystems mounted under the host root
+  (ext4, xfs, btrfs, zfs, ntfs, exfat, vfat, nfs, cifs, ...), read from `/proc/self/mountinfo` on every request,
+  so a newly attached drive shows up without a restart. `/boot`, `/snap`, `/var/lib/docker`, `/run`, `/proc` and `/sys`
+  are skipped. Each entry is labelled with its path on the host (`/media/you/WD Black`).
+- **Favorites.** Any directory under the host root can be added on the **Favorites** page, with an optional label.
+  Favorites appear in the same drop-downs, and are stored in the database.
+- **Delete.** Deleting is allowed on any **read-write** mount under the host root, and refused on read-only mounts.
+  With `-v /:/hostfs:ro`, nothing is deletable until you add a read-write mount over a subpath (see below).
+  **Anything you mount `:rw` under `/hostfs` can be deleted from the UI, and the app has no login.**
+  The other delete checks still apply: no `..` segments, never the scan root itself, only inside the scanned root, symlinks resolved.
 
 ## Running with Docker
 
@@ -52,10 +50,10 @@ docker run -d --name webdisktree -p 8080:8080 \
 ```
 
 - `/hostfs` (read-only) is where the host filesystem is mounted so the app can measure real disk usage. Mount only what you're comfortable exposing.
-- To allow deleting under a specific path, add an additional **read-write** mount over that subpath (e.g. `-v /home/you/Downloads:/hostfs/home/you/Downloads:rw`) and mark the matching `AllowedRoots` entry `AllowDelete: true`.
+- To allow deleting under a specific path, add an additional **read-write** mount over that subpath (e.g. `-v /home/you/Downloads:/hostfs/home/you/Downloads:rw`). The host path must already exist.
 - `/data` persists the SQLite database and gzip-compressed scan tree blobs across restarts.
 
-Or with `docker-compose.yml` (edit the `AllowedRoots` env vars and volume mounts for your setup first):
+Or with `docker-compose.yml` (edit the volume mounts for your setup first):
 
 ```bash
 docker compose up --build
@@ -78,7 +76,7 @@ npm install
 npm start
 ```
 
-Open http://localhost:4200. In development, `appsettings.Development.json` points `Storage:DataDirectory` at `./data` (relative to the API project) and pre-configures one delete-enabled `AllowedRoots` entry at `./data/sample` for local testing.
+Open http://localhost:4200. In development, `appsettings.Development.json` points `Storage:DataDirectory` at `./data` (relative to the API project) and sets `HostRoot:Path` to `/`, so your machine's own mounts are listed and read-write mounts allow delete. On macOS, every drive counts as read-write.
 
 ### Backend tests
 
