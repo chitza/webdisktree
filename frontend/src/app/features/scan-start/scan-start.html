@@ -5,15 +5,26 @@
 
   <mat-card-content>
     @if (roots().length === 0 && !error()) {
-      <p>No allowed roots are configured. Ask the operator to add one via the AllowedRoots configuration.</p>
+      <p>No drives or mounts were found under the host root, and there are no favorites.</p>
     }
 
     @if (roots().length > 0) {
       <mat-form-field appearance="outline" class="root-select">
         <mat-label>Root to scan</mat-label>
         <mat-select [(ngModel)]="selectedPath">
-          @for (root of roots(); track root.path) {
-            <mat-option [value]="root.path">{{ root.label }} ({{ root.path }})</mat-option>
+          @if (mounts().length > 0) {
+            <mat-optgroup label="Drives and mounts">
+              @for (root of mounts(); track root.path) {
+                <mat-option [value]="root.path">{{ root.label }}</mat-option>
+              }
+            </mat-optgroup>
+          }
+          @if (favorites().length > 0) {
+            <mat-optgroup label="Favorites">
+              @for (root of favorites(); track root.path) {
+                <mat-option [value]="root.path">{{ root.label }} ({{ root.path }})</mat-option>
+              }
+            </mat-optgroup>
           }
         </mat-select>
       </mat-form-field>

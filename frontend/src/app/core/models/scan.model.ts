@@ -28,8 +28,16 @@ export interface ScanSummary {
   errorMessage: string | null;
 }
 
-export interface AllowedRoot {
+export interface ScanRoot {
   path: string;
   label: string;
+  kind: 'mount' | 'favorite';
   allowDelete: boolean;
+}
+
+/** True if `path` is `root` or below it, compared on whole path segments. */
+export function isSameOrUnder(root: string, path: string): boolean {
+  if (path === root) return true;
+  const prefix = root.endsWith('/') ? root : root + '/';
+  return path.startsWith(prefix);
 }

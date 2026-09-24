@@ -6,14 +6,11 @@ services:
       - "8080:8080"
     volumes:
       - webdisktree-data:/data
+      # The host filesystem, read-only. Drives and mounts under /hostfs are detected automatically.
       - /:/hostfs:ro
-      # Uncomment and adjust to allow deleting from a specific path (needs rw + a matching AllowedRoots entry):
-      # - /Users/you/Downloads:/hostfs/Users/you/Downloads:rw
+      # Delete is allowed only on read-write mounts. Uncomment and adjust to allow deleting under a specific path:
+      # - /home/you/Downloads:/hostfs/home/you/Downloads:rw
     environment:
-      # AllowedRoots is empty by default (nothing scannable) until configured. Example for one read-only root:
-      - AllowedRoots__Roots__0__Path=/hostfs
-      - AllowedRoots__Roots__0__Label=Whole disk (read-only)
-      - AllowedRoots__Roots__0__AllowDelete=false
       # IMDB lookups are disabled until a TMDb API key is set. Never hardcode the real key here —
       # set TMDB_API_KEY in the deployment environment (e.g. Portainer's stack env vars) instead.
       - Tmdb__ApiKey=${TMDB_API_KEY:-}

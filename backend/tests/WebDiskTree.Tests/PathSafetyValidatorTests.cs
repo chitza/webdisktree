@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Options;
-using WebDiskTree.Core.Models;
+using WebDiskTree.Core.Abstractions;
 using WebDiskTree.Infrastructure.Security;
 
 namespace WebDiskTree.Tests;
@@ -7,22 +7,24 @@ namespace WebDiskTree.Tests;
 public class PathSafetyValidatorTests : IDisposable
 {
     private readonly string _root;
+    private readonly string _parent;
     private readonly PathSafetyValidator _validator;
 
     public PathSafetyValidatorTests()
     {
         _root = Directory.CreateTempSubdirectory("webdisktree-safety-test-").FullName;
+        _parent = Directory.GetParent(_root)!.FullName;
         Directory.CreateDirectory(Path.Combine(_root, "sub"));
         File.WriteAllText(Path.Combine(_root, "sub", "child.txt"), "x");
+        File.WriteAllText(Path.Combine(_root, "top.txt"), "x");
 
-        var options = Options.Create(new AllowedRootsOptions
-        {
-            Roots = [new AllowedRoot { Path = _root, Label = "test", AllowDelete = true }],
-        });
-        _validator = new PathSafetyValidator(options);
+        _validator = CreateValidator(hostRoot: _root, new MountInfo(_root, "ext4", IsReadOnly: false));
     }
 
     public void Dispose() => Directory.Delete(_root, recursive: true);
+
+    private static PathSafetyValidator CreateValidator(string hostRoot, params MountInfo[] mounts) =>
+        new(new FakeMountTable(mounts), new HostRootService(Options.Create(new HostRootOptions { Path = hostRoot })));
 
     [Fact]
     public void RejectsPathOutsideScanRoot()
@@ -59,7 +61,7 @@ public class PathSafetyValidatorTests : IDisposable
     }
 
     [Fact]
-    public void AllowsValidDescendantUnderAllowedRoot()
+    public void AllowsValidDescendantOnReadWriteMount()
     {
         var childPath = Path.Combine(_root, "sub", "child.txt");
         var ok = _validator.TryValidateForDelete(_root, childPath, out var canonical, out var error);
@@ -68,42 +70,56 @@ public class PathSafetyValidatorTests : IDisposable
     }
 
     [Fact]
-    public void RejectsWhenRootNotInAllowList()
+    public void RejectsPathOutsideHostRoot()
     {
-        var otherRoot = Directory.CreateTempSubdirectory("webdisktree-other-root-").FullName;
-        try
-        {
-            var childPath = Path.Combine(otherRoot, "file.txt");
-            File.WriteAllText(childPath, "x");
+        var validator = CreateValidator(hostRoot: Path.Combine(_root, "sub"), new MountInfo(_parent, "ext4", IsReadOnly: false));
 
-            var ok = _validator.TryValidateForDelete(otherRoot, childPath, out _, out var error);
-            Assert.False(ok);
-            Assert.Contains("allowed", error, StringComparison.OrdinalIgnoreCase);
-        }
-        finally
-        {
-            Directory.Delete(otherRoot, recursive: true);
-        }
+        var ok = validator.TryValidateForDelete(_root, Path.Combine(_root, "top.txt"), out _, out var error);
+
+        Assert.False(ok);
+        Assert.Contains("host root", error, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public void UsesMostSpecificMatchingRootWhenNestedRootsDisagreeOnAllowDelete()
+    public void RejectsPathOnReadOnlyMount()
     {
-        var parent = Directory.GetParent(_root)!.FullName;
-        var options = Options.Create(new AllowedRootsOptions
-        {
-            Roots =
-            [
-                new AllowedRoot { Path = parent, Label = "broad, no delete", AllowDelete = false },
-                new AllowedRoot { Path = _root, Label = "specific, delete enabled", AllowDelete = true },
-            ],
-        });
-        var validator = new PathSafetyValidator(options);
+        var validator = CreateValidator(hostRoot: _root, new MountInfo(_parent, "ext4", IsReadOnly: true));
 
-        var childPath = Path.Combine(_root, "sub", "child.txt");
-        var ok = validator.TryValidateForDelete(_root, childPath, out var canonical, out var error);
+        var ok = validator.TryValidateForDelete(_root, Path.Combine(_root, "sub", "child.txt"), out _, out var error);
 
-        Assert.True(ok, error);
-        Assert.Equal(Path.GetFullPath(childPath), canonical);
+        Assert.False(ok);
+        Assert.Contains("read-only", error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void RejectsWhenNoMountContainsThePath()
+    {
+        var validator = CreateValidator(hostRoot: _root);
+
+        var ok = validator.TryValidateForDelete(_root, Path.Combine(_root, "sub", "child.txt"), out _, out var error);
+
+        Assert.False(ok);
+        Assert.Contains("read-only", error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void UsesInnermostMountForReadOnlyFlag()
+    {
+        var rwInsideRo = CreateValidator(hostRoot: _root,
+            new MountInfo(_parent, "ext4", IsReadOnly: true),
+            new MountInfo(_root, "ext4", IsReadOnly: false));
+        Assert.True(rwInsideRo.TryValidateForDelete(_root, Path.Combine(_root, "sub", "child.txt"), out _, out var error), error);
+
+        var roInsideRw = CreateValidator(hostRoot: _root,
+            new MountInfo(_parent, "ext4", IsReadOnly: false),
+            new MountInfo(Path.Combine(_root, "sub"), "ext4", IsReadOnly: true));
+        Assert.False(roInsideRw.TryValidateForDelete(_root, Path.Combine(_root, "sub", "child.txt"), out _, out error));
+        Assert.Contains("read-only", error, StringComparison.OrdinalIgnoreCase);
+        Assert.True(roInsideRw.TryValidateForDelete(_root, Path.Combine(_root, "top.txt"), out _, out error), error);
+    }
+
+    private sealed class FakeMountTable(IReadOnlyList<MountInfo> mounts) : MountTableBase
+    {
+        public override IReadOnlyList<MountInfo> GetMounts() => mounts;
     }
 }

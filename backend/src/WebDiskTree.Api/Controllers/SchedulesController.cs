@@ -15,7 +15,7 @@ namespace WebDiskTree.Api.Controllers;
 public class SchedulesController(
     WebDiskTreeDbContext dbContext,
     ScanQueue queue,
-    AllowedRootsService allowedRoots) : ControllerBase
+    HostRootService hostRoot) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<ScheduleDto>>> GetSchedules(CancellationToken cancellationToken)
@@ -27,9 +27,9 @@ public class SchedulesController(
     [HttpPost]
     public async Task<ActionResult<ScheduleDto>> CreateSchedule(CreateScheduleRequest request, CancellationToken cancellationToken)
     {
-        if (!allowedRoots.IsAllowed(request.RootPath))
+        if (!hostRoot.IsUnderHostRoot(request.RootPath))
         {
-            return BadRequest("RootPath is not under any configured allowed root.");
+            return BadRequest("RootPath is not under the host root.");
         }
 
         if (!TryParseCron(request.CronExpression, out var error))
@@ -61,9 +61,9 @@ public class SchedulesController(
             return NotFound();
         }
 
-        if (!allowedRoots.IsAllowed(request.RootPath))
+        if (!hostRoot.IsUnderHostRoot(request.RootPath))
         {
-            return BadRequest("RootPath is not under any configured allowed root.");
+            return BadRequest("RootPath is not under the host root.");
         }
 
         if (!TryParseCron(request.CronExpression, out var error))

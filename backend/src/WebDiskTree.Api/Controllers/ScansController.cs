@@ -15,7 +15,7 @@ public class ScansController(
     WebDiskTreeDbContext dbContext,
     ScanQueue queue,
     ScanCancellationRegistry cancellationRegistry,
-    AllowedRootsService allowedRoots) : ControllerBase
+    HostRootService hostRoot) : ControllerBase
 {
     [HttpPost]
     public async Task<ActionResult<ScanSummaryDto>> CreateScan(CreateScanRequest request, CancellationToken cancellationToken)
@@ -25,9 +25,9 @@ public class ScansController(
             return BadRequest("RootPath is required.");
         }
 
-        if (!allowedRoots.IsAllowed(request.RootPath))
+        if (!hostRoot.IsUnderHostRoot(request.RootPath))
         {
-            return BadRequest("RootPath is not under any configured allowed root.");
+            return BadRequest("RootPath is not under the host root.");
         }
 
         if (!Directory.Exists(request.RootPath))

@@ -1,9 +1,8 @@
-using Microsoft.Extensions.Options;
 using WebDiskTree.Core.Abstractions;
 
 namespace WebDiskTree.Infrastructure.Security;
 
-public class PathSafetyValidator(IOptions<AllowedRootsOptions> allowedRoots) : IPathSafetyValidator
+public class PathSafetyValidator(IMountTable mountTable, HostRootService hostRoot) : IPathSafetyValidator
 {
     private static readonly StringComparison PathComparison =
         OperatingSystem.IsWindows() || OperatingSystem.IsMacOS() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
@@ -58,18 +57,16 @@ public class PathSafetyValidator(IOptions<AllowedRootsOptions> allowedRoots) : I
             return false;
         }
 
-        var allowedRoot = allowedRoots.Value.Roots
-            .Where(r =>
-            {
-                var normalizedAllowed = Path.TrimEndingDirectorySeparator(Path.GetFullPath(r.Path));
-                return string.Equals(normalizedAllowed, normalizedRoot, PathComparison) || IsStrictDescendant(normalizedAllowed, normalizedRoot);
-            })
-            .OrderByDescending(r => Path.GetFullPath(r.Path).Length)
-            .FirstOrDefault();
-
-        if (allowedRoot is null || !allowedRoot.AllowDelete)
+        if (!hostRoot.IsUnderHostRoot(resolved))
         {
-            error = "Path is not under an allowed, delete-enabled root.";
+            error = "Path is outside the host root.";
+            return false;
+        }
+
+        var mount = mountTable.FindContaining(resolved);
+        if (mount is null || mount.IsReadOnly)
+        {
+            error = "Path is on a read-only mount.";
             return false;
         }
 

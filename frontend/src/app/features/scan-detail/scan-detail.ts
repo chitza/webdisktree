@@ -8,7 +8,7 @@ import { SplitAreaComponent, SplitComponent } from 'angular-split';
 import { ScanService } from '../../core/services/scan.service';
 import { FileService } from '../../core/services/file.service';
 import { DirectoryNode, FileEntry } from '../../core/models/directory-node.model';
-import { ScanStatus, ScanSummary, ScanTrigger } from '../../core/models/scan.model';
+import { isSameOrUnder, ScanStatus, ScanSummary, ScanTrigger } from '../../core/models/scan.model';
 import { Treemap } from './treemap/treemap';
 import { StretchedTreemap } from './stretched-treemap/stretched-treemap';
 import { Sunburst } from './sunburst/sunburst';
@@ -89,7 +89,10 @@ export class ScanDetail {
 
   private checkDeletePermission(rootPath: string): void {
     this.scanService.getRoots().subscribe((roots) => {
-      this.canDelete.set(roots.some((r) => r.allowDelete && rootPath.startsWith(r.path)));
+      // The backend decides per file; this only hides the delete action when no writable mount touches the scan.
+      this.canDelete.set(
+        roots.some((r) => r.allowDelete && (isSameOrUnder(r.path, rootPath) || isSameOrUnder(rootPath, r.path))),
+      );
     });
   }
 

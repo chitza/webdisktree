@@ -19,6 +19,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/schedules/schedules').then((m) => m.Schedules),
   },
   {
+    path: 'favorites',
+    loadComponent: () => import('./features/favorites/favorites').then((m) => m.Favorites),
+  },
+  {
     path: 'imdb-cache',
     loadComponent: () => import('./features/imdb-cache/imdb-cache').then((m) => m.ImdbCache),
   },

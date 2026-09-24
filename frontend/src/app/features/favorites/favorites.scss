@@ -1,0 +1,52 @@
+@use '../../../styles/tokens';
+
+h1 {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 16px;
+}
+
+.new-favorite-card {
+  max-width: 640px;
+  margin-bottom: 24px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 200px;
+  }
+}
+
+.error {
+  color: var(--wdt-status-failed);
+  padding: 0 16px;
+}
+
+.favorites-table {
+  width: 100%;
+
+  .mat-column-path {
+    @include tokens.mono;
+  }
+
+  .mat-column-actions {
+    width: 96px;
+    text-align: right;
+  }
+
+  .label-input {
+    width: 100%;
+    font: inherit;
+    padding: 4px 6px;
+    border: 1px solid var(--wdt-rule);
+    border-radius: var(--wdt-radius);
+    background: var(--wdt-panel);
+    color: inherit;
+  }
+}
