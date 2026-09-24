@@ -11,6 +11,8 @@ public abstract class MountTableBase : IMountTable
         var normalized = PathUtil.Normalize(path);
         return GetMounts()
             .Where(m => PathUtil.IsSameOrUnder(PathUtil.Normalize(m.MountPoint), normalized))
-            .MaxBy(m => PathUtil.Normalize(m.MountPoint).Length);
+            // Stable sort: of two mounts on the same mount point, the later (visible) one wins.
+            .OrderBy(m => PathUtil.Normalize(m.MountPoint).Length)
+            .LastOrDefault();
     }
 }
