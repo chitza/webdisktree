@@ -7,7 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { ScanService } from '../../core/services/scan.service';
-import { ScanRoot } from '../../core/models/scan.model';
+import { groupRoots, ScanRoot } from '../../core/models/scan.model';
 
 @Component({
   selector: 'app-scan-start',
@@ -27,8 +27,9 @@ export class ScanStart {
   private readonly router = inject(Router);
 
   readonly roots = signal<ScanRoot[]>([]);
-  readonly mounts = computed(() => this.roots().filter((r) => r.kind === 'mount'));
-  readonly favorites = computed(() => this.roots().filter((r) => r.kind === 'favorite'));
+  private readonly grouped = computed(() => groupRoots(this.roots()));
+  readonly mounts = computed(() => this.grouped().mounts);
+  readonly favorites = computed(() => this.grouped().favorites);
   readonly selectedPath = signal<string | null>(null);
   readonly starting = signal(false);
   readonly error = signal<string | null>(null);
@@ -37,8 +38,10 @@ export class ScanStart {
     this.scanService.getRoots().subscribe({
       next: (roots) => {
         this.roots.set(roots);
-        if (roots.length === 1) {
-          this.selectedPath.set(roots[0].path);
+        const { mounts, favorites } = groupRoots(roots);
+        const only = [...mounts, ...favorites];
+        if (only.length === 1) {
+          this.selectedPath.set(only[0].path);
         }
       },
       error: () => this.error.set('Failed to load drives and favorites.'),
