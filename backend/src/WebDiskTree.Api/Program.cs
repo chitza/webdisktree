@@ -28,7 +28,6 @@ builder.Services.AddSignalR();
 builder.Services.AddDbContext<WebDiskTreeDbContext>(options =>
     options.UseSqlite($"Data Source={dbPath}"));
 
-builder.Services.Configure<AllowedRootsOptions>(builder.Configuration.GetSection("AllowedRoots"));
 builder.Services.Configure<ScanStorageOptions>(o => o.BlobDirectory = blobDirectory);
 builder.Services.Configure<TmdbOptions>(builder.Configuration.GetSection("Tmdb"));
 builder.Services.Configure<ScheduleRetentionOptions>(builder.Configuration.GetSection("ScheduleRetention"));
@@ -43,7 +42,6 @@ builder.Services.AddHttpClient<TmdbClient>();
 
 builder.Services.AddScoped<FileEntryBulkWriter>();
 builder.Services.AddScoped<IPathSafetyValidator, PathSafetyValidator>();
-builder.Services.AddSingleton<AllowedRootsService>();
 builder.Services.Configure<HostRootOptions>(builder.Configuration.GetSection("HostRoot"));
 builder.Services.AddSingleton<HostRootService>();
 builder.Services.AddSingleton<IMountTable>(OperatingSystem.IsLinux() ? new LinuxMountTable() : new FallbackMountTable());

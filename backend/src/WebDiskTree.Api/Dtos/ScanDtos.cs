@@ -55,7 +55,8 @@ public record ScheduleDto(
     DateTimeOffset? LastRunAt,
     DateTimeOffset? NextRunAt);
 
-public record AllowedRootDto(string Path, string Label, bool AllowDelete);
+/// <summary>An entry in the scan-root drop-down. Kind is "mount" (detected) or "favorite" (user-defined).</summary>
+public record ScanRootDto(string Path, string Label, string Kind, bool AllowDelete);
 
 public record ImdbLookupCacheSummaryDto(int Count);
 
