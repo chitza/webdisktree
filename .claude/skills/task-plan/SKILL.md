@@ -41,7 +41,7 @@ Do not write product code in this skill.
 - `backend/src/WebDiskTree.Api/`: controllers (`Controllers/`), DTOs, SignalR hubs, `Program.cs` (DI, startup migrations).
 - `backend/src/WebDiskTree.Core/`: models and abstractions. No EF or IO here.
 - `backend/src/WebDiskTree.Infrastructure/`: `Data/` (DbContext, entities, EF migrations), `Scanning/`, `Scheduling/`,
-  `Security/` (path safety, AllowedRoots), `Compression/` (scan archives), `Media/` (IMDB lookup).
+  `Security/` (path safety, host root, mount detection), `Compression/` (scan archives), `Media/` (IMDB lookup).
 - `backend/tests/WebDiskTree.Tests/`: xUnit tests. One file per feature area.
 - `frontend/src/app/`: Angular 22, standalone components. `core/` (models, API services), `features/<page>/`, `shared/`.
   Unit tests are `*.spec.ts` next to the component (Vitest via `ng test`).
@@ -57,6 +57,7 @@ Do not write product code in this skill.
   `task-run` must not edit a pinned test.
 - A schema change names the migration to add, and says what happens to existing rows.
   Existing user databases are migrated on startup, so a migration must work on real data, not only on an empty DB.
+- A smoke run mounts only test directories that `task-run` makes, never the real `/` or another real host path.
 - For a small fix, the plan can be 15 lines. Do not pad it.
 
 ## intent.md template
@@ -75,7 +76,7 @@ Author: <name>. Issue: <#number or none>. Status: draft.
 <backend API, backend core/infrastructure, EF schema/migration, frontend, Docker/compose, CI>
 
 ## Constraints
-<security (AllowedRoots, delete safety), data (existing DB, scan archives), compatibility, what is out of scope>
+<security (host root, read-write mounts, delete safety), data (existing DB, scan archives), compatibility, what is out of scope>
 
 ## Open questions
 <every point that is not decided>
