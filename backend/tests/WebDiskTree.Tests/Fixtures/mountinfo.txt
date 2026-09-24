@@ -1,0 +1,33 @@
+4412 3382 0:122 / / rw,relatime - overlay overlay rw,lowerdir=/var/lib/docker/overlay2/l/CRLAF52BZ5Y7VMRQE7EL3OXYOE:/var/lib/docker/overlay2/l/VFDHAWG2I4TAAKXPV44XLKXUJS,upperdir=/var/lib/docker/overlay2/b44f28b3ec3593afbe01179eb755bb9af067de1a570caaf9f8dc32776cf360c8/diff,workdir=/var/lib/docker/overlay2/b44f28b3ec3593afbe01179eb755bb9af067de1a570caaf9f8dc32776cf360c8/work
+4418 4412 0:409 / /proc rw,nosuid,nodev,noexec,relatime - proc proc rw
+4419 4412 0:410 / /dev rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755,inode64
+4420 4419 0:411 / /dev/pts rw,nosuid,noexec,relatime - devpts devpts rw,gid=5,mode=620,ptmxmode=666
+4421 4412 0:412 / /sys ro,nosuid,nodev,noexec,relatime - sysfs sysfs ro
+4427 4426 0:32 /docker/b21a3b63da8f01bde2ab13f959eecf6146a63cdf9f4a309119203257f33d3d9f /sys/fs/cgroup/systemd ro,nosuid,nodev,noexec,relatime master:11 - cgroup cgroup rw,xattr,name=systemd
+4500 4419 0:407 / /dev/mqueue rw,nosuid,nodev,noexec,relatime - mqueue mqueue rw
+4506 4412 259:3 / /hostfs ro,relatime master:1 - ext4 /dev/nvme0n1p3 rw,errors=remount-ro
+4507 4506 0:5 / /hostfs/dev ro,nosuid,noexec,relatime master:2 - devtmpfs udev rw,size=7989200k,nr_inodes=1997300,mode=755,inode64
+4555 4507 0:28 / /hostfs/dev/shm ro,nosuid,nodev master:4 - tmpfs tmpfs rw,inode64
+4557 4507 0:49 / /hostfs/dev/hugepages ro,relatime master:29 - hugetlbfs hugetlbfs rw,pagesize=2M
+4562 4559 0:50 / /hostfs/run/rpc_pipefs ro,relatime master:33 - rpc_pipefs sunrpc rw
+4564 4563 0:59 / /hostfs/run/user/1000/gvfs ro,nosuid,nodev,relatime master:1240 - fuse.gvfsd-fuse gvfsd-fuse rw,user_id=1000,group_id=1000
+4565 4563 0:56 / /hostfs/run/user/1000/doc ro,nosuid,nodev,relatime master:103 - fuse.portal portal rw,user_id=1000,group_id=1000
+4566 4559 0:4 net:[4026531840] /hostfs/run/docker/netns/default ro master:1419 - nsfs nsfs rw
+4637 4636 0:6 / /hostfs/sys/kernel/security ro,nosuid,nodev,noexec,relatime master:8 - securityfs securityfs rw
+4638 4636 0:30 / /hostfs/sys/fs/cgroup ro,nosuid,nodev,noexec master:9 - tmpfs tmpfs ro,mode=755,inode64
+4643 4638 0:31 / /hostfs/sys/fs/cgroup/unified ro,nosuid,nodev,noexec,relatime master:10 - cgroup2 cgroup2 rw,nsdelegate
+4734 4636 0:33 / /hostfs/sys/fs/pstore ro,nosuid,nodev,noexec,relatime master:12 - pstore pstore rw
+4749 4506 0:23 / /hostfs/proc ro,nosuid,nodev,noexec,relatime master:15 - proc proc rw
+4772 4749 0:52 / /hostfs/proc/fs/nfsd ro,relatime master:73 - nfsd nfsd rw
+4773 4506 7:0 / /hostfs/snap/bare/5 ro,nodev,relatime master:75 - squashfs /dev/loop0 ro,errors=continue
+4791 4506 7:20 / /hostfs/snap/nmap/4838 ro,nodev,relatime master:115 - squashfs /dev/loop20 ro,errors=continue
+4799 4506 8:2 / /hostfs/media/cristi/WD\040Black ro,noatime master:137 - ext4 /dev/sda2 rw,stripe=8191
+4800 4506 259:1 / /hostfs/boot/efi ro,relatime master:139 - vfat /dev/nvme0n1p1 rw,fmask=0077,dmask=0077,codepage=437,iocharset=iso8859-1,shortname=mixed,errors=remount-ro
+4801 4506 259:2 / /hostfs/data ro,relatime master:141 - ext4 /dev/nvme0n1p2 rw,errors=remount-ro
+4802 4506 259:2 /media /hostfs/data_media/media ro,relatime master:141 - ext4 /dev/nvme0n1p2 rw,errors=remount-ro
+4803 4506 8:17 / /hostfs/media/cristi/_lacie ro,noatime master:1224 - ext4 /dev/sdb1 rw
+4804 4506 0:64 / /hostfs/var/lib/docker/overlay2/1a2c878c8b32b884fe5442fc6ce1951c5e6bf82ee2b59ed508cb7bfefa113f05/merged ro,relatime master:1269 - overlay overlay rw,lowerdir=/var/lib/docker/overlay2/l/ZHDRK6NVZWJAECDRVCWYAWNTNQ:/var/lib/docker/overlay2/l/77RSEXCPBGJY2S53AUPYQ6LTAP:/var/lib/docker/overlay2/l/UUOWLYFND3W4EXWS77FH6A7YYC:/var/lib/docker/overlay2/l/MD3H3LCUH6ELM6QQI5EGQJAIJ4,upperdir=/var/lib/docker/overlay2/1a2c878c8b32b884fe5442fc6ce1951c5e6bf82ee2b59ed508cb7bfefa113f05/diff,workdir=/var/lib/docker/overlay2/1a2c878c8b32b884fe5442fc6ce1951c5e6bf82ee2b59ed508cb7bfefa113f05/work
+4856 4412 259:3 /var/lib/docker/containers/b21a3b63da8f01bde2ab13f959eecf6146a63cdf9f4a309119203257f33d3d9f/resolv.conf /etc/resolv.conf rw,relatime - ext4 /dev/nvme0n1p3 rw,errors=remount-ro
+4857 4412 259:3 /var/lib/docker/containers/b21a3b63da8f01bde2ab13f959eecf6146a63cdf9f4a309119203257f33d3d9f/hostname /etc/hostname rw,relatime - ext4 /dev/nvme0n1p3 rw,errors=remount-ro
+4862 4412 259:3 /var/lib/docker/containers/b21a3b63da8f01bde2ab13f959eecf6146a63cdf9f4a309119203257f33d3d9f/hosts /etc/hosts rw,relatime - ext4 /dev/nvme0n1p3 rw,errors=remount-ro
+4863 4506 259:3 /home/cristi/Downloads /hostfs/home/cristi/Downloads rw,relatime - ext4 /dev/nvme0n1p3 rw,errors=remount-ro

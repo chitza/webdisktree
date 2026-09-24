@@ -1,9 +1,8 @@
-using Microsoft.Extensions.Options;
 using WebDiskTree.Core.Abstractions;
 
 namespace WebDiskTree.Infrastructure.Security;
 
-public class PathSafetyValidator(IOptions<AllowedRootsOptions> allowedRoots) : IPathSafetyValidator
+public class PathSafetyValidator(IMountTable mountTable, HostRootService hostRoot) : IPathSafetyValidator
 {
     private static readonly StringComparison PathComparison =
         OperatingSystem.IsWindows() || OperatingSystem.IsMacOS() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
@@ -58,20 +57,7 @@ public class PathSafetyValidator(IOptions<AllowedRootsOptions> allowedRoots) : I
             return false;
         }
 
-        var allowedRoot = allowedRoots.Value.Roots
-            .Where(r =>
-            {
-                var normalizedAllowed = Path.TrimEndingDirectorySeparator(Path.GetFullPath(r.Path));
-                return string.Equals(normalizedAllowed, normalizedRoot, PathComparison) || IsStrictDescendant(normalizedAllowed, normalizedRoot);
-            })
-            .OrderByDescending(r => Path.GetFullPath(r.Path).Length)
-            .FirstOrDefault();
-
-        if (allowedRoot is null || !allowedRoot.AllowDelete)
-        {
-            error = "Path is not under an allowed, delete-enabled root.";
-            return false;
-        }
+        throw new NotImplementedException();
 
         canonicalPath = resolved;
         error = null;
